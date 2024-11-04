@@ -4,10 +4,11 @@ namespace mintspark {
      * NeZha V2
      */
 
-    let maxSpeed = 25;
-    let minSpeed = 12;
+    let maxSpeed = 50;
+    let minSpeed = 10;
     let MPU6050Initialised = false;
     let stopDrive = true;
+    let i2cAddr: number = 0x10;
 
     function restrictSpeed(speed: number):number{
         if (speed > 100) { speed = 100 };
@@ -44,15 +45,16 @@ namespace mintspark {
     }
     
     //% weight=100
-    //% block="Run motor %motor direction %direction for %value %mode"
+    //% block="Run motor %motor direction %direction speed %speed for %value %mode"
     //% subcategory="Motor / Servo"
     //% group="Motor"
-    //% speed.min=-100 speed.max=100
+    //% speed.min=1 speed.max=100
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#E63022
-    export function runMotorFor(motor: NezhaV2MotorPostion, direction: NezhaV2MovementDirection, value: number, mode: NezhaV2SportsMode): void {
-        nezhaV2.motorSpeed(motor, direction, value, mode)
+    export function runMotorFor(motor: NezhaV2MotorPostion, direction: NezhaV2MovementDirection, speed: number, value: number, mode: NezhaV2SportsMode): void {
+        nezhaV2.setServoSpeed(speed);
+        nezhaV2.motorSpeed(motor, direction, value, mode);
     }
 
     //% weight=95
@@ -78,13 +80,28 @@ namespace mintspark {
         nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M4, 0);
     }
 
+    export function setServoSpeed(motor: NezhaV2MotorPostion, speed: number): void {
+        speed *= 15
+        let buf = pins.createBuffer(8)
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = 0x00;
+        buf[3] = 0x00;
+        buf[4] = 0x77;
+        buf[5] = (speed >> 8) & 0XFF;
+        buf[6] = 0x00;
+        buf[7] = (speed >> 0) & 0XFF;
+        pins.i2cWriteBuffer(i2cAddr, buf);
+
+    }
+
     /*
      * Tank Mode
      */
     let tankMotorLeft: NezhaV2MotorPostion = NezhaV2MotorPostion.M4;
-    let tankMotorLeftReversed: boolean = false;
+    let tankMotorLeftReversed: boolean = true;
     let tankMotorRight: NezhaV2MotorPostion = NezhaV2MotorPostion.M1;
-    let tankMotorRightReversed: boolean = true;
+    let tankMotorRightReversed: boolean = false;
 
     export enum TurnDirection {
         //% block="left"
@@ -93,29 +110,30 @@ namespace mintspark {
         Right
     }
 
-    //% weight=50
-    //% block="Set robot motor left to %motor reverse %reverse"
-    //% subcategory="Tank Mode"
-    //% group="Setup"
-    //% motor.defl=neZha.MotorList.M4
-    //% reverse.shadow="toggleYesNo"
-    //% color=#E63022
-    export function setTankMotorLeft(motor: NezhaV2MotorPostion, reverse: boolean): void {
-        tankMotorLeft = motor;
-        tankMotorLeftReversed = reverse;
-    }
-
     //% weight=45
     //% block="Set robot motor right to %motor reverse %reverse"
     //% subcategory="Tank Mode"
     //% group="Setup"
     //% motor.defl=neZha.MotorList.M1
-    //% reverse.defl=true
+    //% reverse.defl=false
     //% reverse.shadow="toggleYesNo"
     //% color=#E63022
     export function setTankMotorRight(motor: NezhaV2MotorPostion, reverse: boolean): void {
         tankMotorRight = motor;
         tankMotorRightReversed = reverse;
+    }
+
+    //% weight=50
+    //% block="Set robot motor left to %motor reverse %reverse"
+    //% subcategory="Tank Mode"
+    //% group="Setup"
+    //% motor.defl=neZha.MotorList.M4
+    //% reverse.defl=true
+    //% reverse.shadow="toggleYesNo"
+    //% color=#E63022
+    export function setTankMotorLeft(motor: NezhaV2MotorPostion, reverse: boolean): void {
+        tankMotorLeft = motor;
+        tankMotorLeftReversed = reverse;
     }
 
     /*
