@@ -58,21 +58,21 @@ namespace mintspark {
         return 0;
     }
 
-    //% weight=100
-    //% block="Set motor %motor speed to %speed\\%"
+    //% weight=110
+    //% block="Run motor %motor at speed %speed\\%"
     //% subcategory="Motor / Servo"
     //% group="Motor"
     //% speed.min=-100 speed.max=100
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#E63022
-    export function setMotorSpeed(motor: NezhaV2MotorPostion, speed: number): void {
+    export function runMotor(motor: NezhaV2MotorPostion, speed: number): void {
         speed = restrictSpeed(speed);
         nezhaV2.nezha2MotorSpeedCtrolExport(motor, speed);
     }
     
     //% weight=100
-    //% block="Run motor %motor speed %speed for %value %mode || wait %wait"
+    //% block="Run motor %motor at speed %speed for %value %mode || wait %wait"
     //% subcategory="Motor / Servo"
     //% group="Motor"
     //% speed.min=-100 speed.max=100
@@ -122,7 +122,7 @@ namespace mintspark {
     //% weight=90
     //% subcategory="Motor / Servo"
     //% group="Motor"
-    //% block="Stop all motor"
+    //% block="Stop all motors"
     //% color=#E63022
     export function stopAllMotor(): void {
         stopDrive = true;
