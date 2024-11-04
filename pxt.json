@@ -6,20 +6,19 @@
         "core": "*",
         "radio": "*",
         "microphone": "*",
-        "pxt-nezha": "github:mpoelzl/pxt-nezha#05f94a013247cdb97ccc6773ffce6d688da6b6d2",
-        "pxt-PlanetX": "github:mpoelzl/pxt-planetx#4d307c33dabffb466d2a5d98e6358dbb4e16ab99",
-        "pxt-mintspark-mpu6050": "github:mpoelzl/pxt-mintspark-mpu6050#v1.0.9"
+        "pxt-mintspark-mpu6050": "github:mpoelzl/pxt-mintspark-mpu6050#v1.1.2",
+        "pxt-nezha2": "github:elecfreaks/pxt-nezha2#v1.0.16",
+        "pxt-PlanetX": "github:elecfreaks/pxt-planetx#v1.5.22"
     },
     "files": [
         "main.ts",
-        "README.md",
-        "_locales/de/pxt-mintspark-ik-strings.json"
+        "README.md"
     ],
     "testFiles": [
         "test.ts"
     ],
     "targetVersions": {
-        "target": "7.0.42",
+        "target": "7.0.51",
         "targetId": "microbit"
     },
     "supportedTargets": [

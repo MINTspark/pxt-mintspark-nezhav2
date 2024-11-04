@@ -1,7 +1,7 @@
-//% weight=100 color=#DC22E1 block="MINTspark Inventor" blockId="MINTspark Inventor" icon="\uf0e7"
+//% weight=100 color=#DC22E1 block="MINTspark Nezha V2" blockId="MINTspark Nezha V2" icon="\uf0e7"
 namespace mintspark {
     /*
-     * NeZha
+     * NeZha V2
      */
 
     let maxSpeed = 25;
@@ -27,23 +27,32 @@ namespace mintspark {
 
         return 0;
     }
-    
+
+    nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M1, 0)
+
     //% weight=100
-    //% block="Set motor %motor speed to %speed\\% || seconds %seconds"
+    //% block="Set motor %motor speed to %speed\\%"
     //% subcategory="Motor / Servo"
     //% group="Motor"
     //% speed.min=-100 speed.max=100
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#E63022
-    export function setMotorSpeed(motor: neZha.MotorList, speed: number, seconds?: number): void {
+    export function setMotorSpeed(motor: NezhaV2MotorPostion, speed: number): void {
         speed = restrictSpeed(speed);
-        neZha.setMotorSpeed(motor, speed);
-
-        if (seconds != null) {
-            basic.pause(seconds * 1000);
-            neZha.setMotorSpeed(motor, 0);
-        }
+        nezhaV2.nezha2MotorSpeedCtrolExport(motor, speed);
+    }
+    
+    //% weight=100
+    //% block="Run motor %motor direction %direction for %value %mode"
+    //% subcategory="Motor / Servo"
+    //% group="Motor"
+    //% speed.min=-100 speed.max=100
+    //% expandableArgumentMode="toggle"
+    //% inlineInputMode=inline
+    //% color=#E63022
+    export function runMotorFor(motor: NezhaV2MotorPostion, direction: NezhaV2MovementDirection, value: number, mode: NezhaV2SportsMode): void {
+        nezhaV2.motorSpeed(motor, direction, value, mode)
     }
 
     //% weight=95
@@ -51,9 +60,9 @@ namespace mintspark {
     //% group="Motor"
     //% block="Stop motor %motor"
     //% color=#E63022
-    export function stopMotor(motor: neZha.MotorList): void {
+    export function stopMotor(motor: NezhaV2MotorPostion): void {
         stopDrive = true;
-        setMotorSpeed(motor, 0)
+        nezhaV2.nezha2MotorSpeedCtrolExport(motor, 0);
     }
 
     //% weight=90
@@ -63,21 +72,19 @@ namespace mintspark {
     //% color=#E63022
     export function stopAllMotor(): void {
         stopDrive = true;
-        setMotorSpeed(neZha.MotorList.M1, 0)
-        setMotorSpeed(neZha.MotorList.M2, 0)
-        setMotorSpeed(neZha.MotorList.M3, 0)
-        setMotorSpeed(neZha.MotorList.M4, 0)
+        nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M1, 0);
+        nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M2, 0);
+        nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M3, 0);
+        nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M4, 0);
     }
 
     /*
      * Tank Mode
      */
-
-    let tankMotorLeft: neZha.MotorList = neZha.MotorList.M1;
+    let tankMotorLeft: NezhaV2MotorPostion = NezhaV2MotorPostion.M4;
     let tankMotorLeftReversed: boolean = false;
-    let tankMotorRight: neZha.MotorList = neZha.MotorList.M2;
-    let tankMotorRightReversed: boolean = false;
-    let clawServo: neZha.ServoList = neZha.ServoList.S1;
+    let tankMotorRight: NezhaV2MotorPostion = NezhaV2MotorPostion.M1;
+    let tankMotorRightReversed: boolean = true;
 
     export enum TurnDirection {
         //% block="left"
@@ -90,10 +97,10 @@ namespace mintspark {
     //% block="Set robot motor left to %motor reverse %reverse"
     //% subcategory="Tank Mode"
     //% group="Setup"
-    //% motor.defl=neZha.MotorList.M1
+    //% motor.defl=neZha.MotorList.M4
     //% reverse.shadow="toggleYesNo"
     //% color=#E63022
-    export function setTankMotorLeft(motor: neZha.MotorList, reverse: boolean): void {
+    export function setTankMotorLeft(motor: NezhaV2MotorPostion, reverse: boolean): void {
         tankMotorLeft = motor;
         tankMotorLeftReversed = reverse;
     }
@@ -102,260 +109,13 @@ namespace mintspark {
     //% block="Set robot motor right to %motor reverse %reverse"
     //% subcategory="Tank Mode"
     //% group="Setup"
-    //% motor.defl=neZha.MotorList.M2
+    //% motor.defl=neZha.MotorList.M1
+    //% reverse.defl=true
     //% reverse.shadow="toggleYesNo"
     //% color=#E63022
-    export function setTankMotorRight(motor: neZha.MotorList, reverse: boolean): void {
+    export function setTankMotorRight(motor: NezhaV2MotorPostion, reverse: boolean): void {
         tankMotorRight = motor;
         tankMotorRightReversed = reverse;
-    }
-
-    //% weight=40
-    //% block="Set claw servo to port %servo"
-    //% subcategory="Tank Mode"
-    //% group="Setup"
-    //% motor.defl=neZha.ServoList.S1
-    //% reverse.shadow="toggleYesNo"
-    //% color=#E63022
-    export function setClawServo(servo: neZha.ServoList): void {
-        clawServo = servo;
-    }
-
-    //% weight=40
-    //% block="Drive straight speed %speed\\% || seconds %seconds"
-    //% subcategory="Tank Mode"
-    //% group="Drive"
-    //% speed.min=-100 speed.max=100
-    //% expandableArgumentMode="toggle"
-    //% inlineInputMode=inline
-    //% color=#E63022
-    export function driveTankModeSingleSpeed(speed: number, seconds?: number): void {
-        stopDrive = true;
-        let tm1Speed = tankMotorLeftReversed ? -speed : speed;
-        let tm2Speed = tankMotorRightReversed ? -speed : speed;
-        setMotorSpeed(tankMotorLeft, tm1Speed);
-        setMotorSpeed(tankMotorRight, tm2Speed);
-
-        if (seconds != null)
-        {
-            basic.pause(seconds * 1000);
-            setMotorSpeed(tankMotorRight, 0);
-            setMotorSpeed(tankMotorLeft, 0);
-        }
-    }
-
-    //% weight=10
-    //% block="Stop drive"
-    //% subcategory="Tank Mode"
-    //% group="Drive"
-    //% inlineInputMode=inline
-    //% color=#E63022
-    export function driveTankModeStop(): void {
-        stopDrive = true;
-        setMotorSpeed(tankMotorLeft, 0);
-        setMotorSpeed(tankMotorRight, 0);
-    }
-
-    //% weight=35
-    //% block="Drive left motor %speedLeft\\% right motor %speedRight\\% || seconds %seconds"
-    //% subcategory="Tank Mode"
-    //% group="Drive"
-    //% speedLeft.min=-100 speedLeft.max=100
-    //% speedRight.min=-100 speedRight.max=100
-    //% expandableArgumentMode="toggle"
-    //% inlineInputMode=inline
-    //% color=#E63022
-    export function driveTankModeDualSpeed(speedLeft: number, speedRight: number, seconds?: number): void {
-        stopDrive = true;
-        let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
-        let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
-        setMotorSpeed(tankMotorLeft, tmLSpeed);
-        setMotorSpeed(tankMotorRight, tmRSpeed);
-
-        if (seconds != null) {
-            basic.pause(seconds * 1000);
-            setMotorSpeed(tankMotorRight, 0);
-            setMotorSpeed(tankMotorLeft, 0);
-        }
-    }
-
-    //% weight=37
-    //% block="Gyro drive straight speed %speed || seconds %seconds"
-    //% subcategory="Tank Mode"
-    //% group="Drive"
-    //% speed.min=-100 speed.max=100
-    //% expandableArgumentMode="toggle"
-    //% color=#E63022
-    export function driveTankModeSingleSpeedGyro(speed: number, seconds?: number): void {
-        // Setup IMU, exit if not initialised
-        if (!setupMPU6050()) {
-            return;
-        }
-
-        // Calibrate 6050 sensor for 1 second (robot must remain still during this period)
-        MINTsparkMpu6050.Calibrate(1);
-
-        // Drive with PID Control
-        if (seconds != null)
-        {
-            driveTankModeSingelSpeedGyroPid(speed, seconds);
-        }
-        else
-        {
-            control.inBackground(() => {
-                driveTankModeSingelSpeedGyroPid(speed, 60000);
-            })
-        }
-    }
-
-    function driveTankModeSingelSpeedGyroPid(speed: number, seconds: number):void{
-        let modierfierL = tankMotorLeftReversed ? -1 : 1;
-        let modierfierR = tankMotorRightReversed ? -1 : 1;
-
-        stopDrive = false;
-        let startTime = input.runningTime();
-        let lastUpdateTime = startTime;
-        let Kp = 10; let Ki = 0.05; let Kd = 0.5;
-
-        let pidController = new MINTsparkMpu6050.PIDController();
-        pidController.setGains(Kp, Ki, Kd);
-        pidController.setPoint(MINTsparkMpu6050.UpdateMPU6050().orientation.yaw);
-        let speedL = speed; let speedR = speed;
-        setMotorSpeed(tankMotorLeft, speedL / 2 * modierfierL);
-        setMotorSpeed(tankMotorRight, speedR / 2 * modierfierR);
-
-        while (input.runningTime() - startTime < seconds * 1000) {
-            if (stopDrive) break;
-
-            let updateTime = input.runningTime();
-            let pidCorrection = pidController.compute(updateTime - lastUpdateTime, MINTsparkMpu6050.UpdateMPU6050().orientation.yaw);
-            lastUpdateTime = updateTime;
-
-            speedL = Math.constrain(speed + pidCorrection, 0, 100);
-            speedR = Math.constrain(speed - pidCorrection, 0, 100);
-
-            // Change motor speed
-            if (stopDrive) break;
-            setMotorSpeed(tankMotorLeft, speedL * modierfierL);
-            setMotorSpeed(tankMotorRight, speedR * modierfierR);
-
-            basic.pause(10);
-        }
-
-        setMotorSpeed(tankMotorRight, 0);
-        setMotorSpeed(tankMotorLeft, 0);
-        stopDrive = true;
-    }
-
-    //% weight=30
-    //% block="Spot-turn %direction for %milliSeconds ms || with speed %speed\\%"
-    //% subcategory="Tank Mode"
-    //% group="Turn"
-    //% speed.min=10 speed.max=100 speed.defl=25
-    //% inlineInputMode=inline
-    //% color=#E63022
-    export function turnTankMode(direction: TurnDirection, milliSeconds: number, speed?: number): void {
-        let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
-        let tmRSpeed = tankMotorRightReversed ? -speed : speed;
-        if (direction == TurnDirection.Right) { tmRSpeed = -tmRSpeed; } else { tmLSpeed = -tmLSpeed; }
-
-        setMotorSpeed(tankMotorLeft, tmLSpeed);
-        setMotorSpeed(tankMotorRight, tmRSpeed);
-        basic.pause(milliSeconds);
-        setMotorSpeed(tankMotorRight, 0);
-        setMotorSpeed(tankMotorLeft, 0);
-    }
-
-    //% subcategory="Tank Mode"
-    //% group="Turn"
-    //% block="Gyro spot-turn %turn for angle %angle || with speed %speed"
-    //% expandableArgumentMode="toggle"
-    //% inlineInputMode=inline
-    //% speed.min=10 speed.max=100 speed.defl=25 angle.min=1 angle.max=200 angle.defl=90
-    //% weight=25
-    //% color=#E63022
-    export function turnTankModeGyro(turn: TurnDirection, angle: number, speed?: number): void {
-        stopDrive = true;
-
-        if (speed == null) {
-            speed = 25;
-        }
-
-        let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
-        let tmRSpeed = tankMotorRightReversed ? -speed : speed;
-        if (turn == TurnDirection.Right) { tmRSpeed = -tmRSpeed; } else { tmLSpeed = -tmLSpeed; }
-
-        // Setup IMU, exit if not initialised
-        if (!setupMPU6050()) {
-            return;
-        }
-
-        MINTsparkMpu6050.Calibrate(1);
-
-        let startTime = input.runningTime();
-        let startHeading = MINTsparkMpu6050.UpdateMPU6050().orientation.yaw360;
-        let previousHeading = startHeading;
-        let totalChange = 0;
-
-        setMotorSpeed(tankMotorRight, tmRSpeed);
-        setMotorSpeed(tankMotorLeft, tmLSpeed);
-        basic.pause(200);
-
-        while (input.runningTime() - startTime < 5000) {
-            let heading = MINTsparkMpu6050.UpdateMPU6050().orientation.yaw360;
-            let change = previousHeading - heading;
-
-            if (turn == TurnDirection.Right) {
-                change *= -1;
-            }
-
-            if (change < 0) {
-                change += 360;
-            }
-
-            totalChange += change;
-
-            if (totalChange > angle) break;
-
-            previousHeading = heading;
-            basic.pause(10);
-        }
-
-        setMotorSpeed(tankMotorRight, 0);
-        setMotorSpeed(tankMotorLeft, 0);
-    }
-
-    //% weight=20
-    //% subcategory="Tank Mode"
-    //% group="Claw"
-    //% block="Open claw"
-    //% color=#a3a3c2
-    export function openClaw(): void {
-        neZha.setServoAngel(neZha.ServoTypeList._180, clawServo, 15);
-    }
-
-    //% weight=15
-    //% subcategory="Tank Mode"
-    //% group="Claw"
-    //% block="Close claw"
-    //% color=#a3a3c2
-    export function closeClaw(): void {
-        neZha.setServoAngel(neZha.ServoTypeList._180, clawServo, 68);
-    }
-
-    //% weight=80
-    //% subcategory="Motor / Servo"
-    //% group="Servo"
-    //% block="Set servo %servo angle to %angle°"
-    //% color=#a3a3c2
-    //% angel.min=0 angel.max=360
-    export function setServoAngel(servo: neZha.ServoList, angle: number): void {
-        if (angle > 360 || angle < 0)
-        {
-            return;
-        }
-        
-        neZha.setServoAngel(neZha.ServoTypeList._360, servo, angle);
     }
 
     /*
