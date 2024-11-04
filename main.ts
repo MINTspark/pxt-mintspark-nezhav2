@@ -191,10 +191,10 @@ namespace mintspark {
     //% weight=49
     //% subcategory="Motor / Servo"
     //% group="Motor"
-    //%block="%NezhaV2MotorPostion speed (revolutions/sec)"
+    //%block="%NezhaV2MotorPostion speed (rpm)"
     //% color=#E63022
     export function readServoAbsoluteSpeed(motor: NezhaV2MotorPostion): number {
-        return nezhaV2.readServoAbsoluteSpeed(motor);
+        return nezhaV2.readServoAbsoluteSpeed(motor) * 2;
     }
 
     /*
