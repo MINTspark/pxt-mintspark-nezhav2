@@ -4,6 +4,15 @@ namespace mintspark {
      * NeZha V2
      */
 
+    enum NezhaV2ServoMotionMode {
+        //%block="short path"
+        ShortPath = 1,
+        //%block="clockwise"
+        CW = 2,
+        //%block="counterclockwise"
+        CCW = 3
+    }
+
     let maxSpeed = 50;
     let minSpeed = 10;
     let MPU6050Initialised = false;
@@ -135,7 +144,54 @@ namespace mintspark {
         buf[6] = 0x00;
         buf[7] = (speed >> 0) & 0XFF;
         pins.i2cWriteBuffer(i2cAddr, buf);
+    }
 
+    //% weight=80
+    //% subcategory="Motor / Servo"
+    //% group="Servo"
+    //% block="Set motor %motor to absolute angle %angle° mode %turnmode"
+    //% color=#a3a3c2
+    //% targetAngle.min=0  targetAngle.max=359
+    export function goToAbsolutePosition(motor: NezhaV2MotorPostion, targetAngle: number, turnMode: NezhaV2ServoMotionMode): void {
+        while (targetAngle < 0) {
+            targetAngle += 360
+        }
+        targetAngle %= 360
+
+        let buf = pins.createBuffer(8)
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = motor;
+        buf[3] = 0x00;
+        buf[4] = 0x5D;
+        buf[5] = (targetAngle >> 8) & 0XFF;
+        buf[6] = turnMode;
+        buf[7] = (targetAngle >> 0) & 0XFF;
+        pins.i2cWriteBuffer(i2cAddr, buf);
+        
+        basic.pause(100);
+        while (readServoAbsoluteSpeed(motor) > 0)
+        {
+            basic.pause(100);
+        }
+    }
+
+    //% weight=50
+    //% subcategory="Motor / Servo"
+    //% group="Servo"
+    //%block="%NezhaV2MotorPostion absolute angular position"
+    //% color=#a3a3c2
+    export function readServoAbsolutePostion(motor: NezhaV2MotorPostion): number {
+        return nezhaV2.readServoAbsolutePostion(motor);
+    }
+
+    //% weight=49
+    //% subcategory="Motor / Servo"
+    //% group="Motor"
+    //%block="%NezhaV2MotorPostion speed (revolutions/sec)"
+    //% color=#a3a3c2
+    export function readServoAbsoluteSpeed(motor: NezhaV2MotorPostion): number {
+        return nezhaV2.readServoAbsoluteSpeed(motor);
     }
 
     /*
