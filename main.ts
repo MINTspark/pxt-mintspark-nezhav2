@@ -67,6 +67,7 @@ namespace mintspark {
     //% subcategory="Motor / Servo"
     //% group="Motor"
     //% speed.min=-100 speed.max=100
+    //% wait.defl = true
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#E63022
