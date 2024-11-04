@@ -38,7 +38,7 @@ namespace mintspark {
         return 0;
     }
 
-    function getMotorDelay(motor: NezhaV2MotorPostion, speed: number, value: number, motorFunction: NezhaV2SportsMode) : number {
+    function getMotorDelay(speed: number, value: number, motorFunction: NezhaV2SportsMode) : number {
         speed *= 9;
 
         if (value == 0 || speed == 0) {
@@ -103,7 +103,7 @@ namespace mintspark {
 
         if (wait == true)
         {
-            basic.pause(getMotorDelay(motor, speed, value, mode));
+            basic.pause(getMotorDelay(speed, value, mode));
         }
 
         //nezhaV2.motorSpeed(motor, direction, value, mode);
@@ -170,7 +170,10 @@ namespace mintspark {
         pins.i2cWriteBuffer(i2cAddr, buf);
         
         basic.pause(100);
-        while (readServoAbsoluteSpeed(motor) > 0)
+        let maxTime = getMotorDelay(100, 1, NezhaV2SportsMode.Circle);
+        let startTime = input.runningTime();
+
+        while (readServoAbsoluteSpeed(motor) > 0 && (input.runningTime() - startTime) < maxTime)
         {
             basic.pause(100);
         }
@@ -189,7 +192,7 @@ namespace mintspark {
     //% subcategory="Motor / Servo"
     //% group="Motor"
     //%block="%NezhaV2MotorPostion speed (revolutions/sec)"
-    //% color=#a3a3c2
+    //% color=#E63022
     export function readServoAbsoluteSpeed(motor: NezhaV2MotorPostion): number {
         return nezhaV2.readServoAbsoluteSpeed(motor);
     }
