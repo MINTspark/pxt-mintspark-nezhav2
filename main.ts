@@ -29,7 +29,25 @@ namespace mintspark {
         return 0;
     }
 
-    nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M1, 0)
+    function getMotorDelay(motor: NezhaV2MotorPostion, speed: number, value: number, motorFunction: NezhaV2SportsMode) : number {
+        speed *= 9;
+
+        if (value == 0 || speed == 0) {
+            return 0;
+        }
+
+        if (motorFunction == NezhaV2SportsMode.Circle) {
+            return value * 360000.0 / speed + 500;
+        } 
+        else if (motorFunction == NezhaV2SportsMode.Second) {
+            return (value * 1000);
+        } 
+        else if (motorFunction == NezhaV2SportsMode.Degree) {
+            return value * 1000.0 / speed + 500;
+        }
+
+        return 0;
+    }
 
     //% weight=100
     //% block="Set motor %motor speed to %speed\\%"
@@ -45,16 +63,40 @@ namespace mintspark {
     }
     
     //% weight=100
-    //% block="Run motor %motor direction %direction speed %speed for %value %mode"
+    //% block="Run motor %motor speed %speed for %value %mode || wait %wait"
     //% subcategory="Motor / Servo"
     //% group="Motor"
-    //% speed.min=1 speed.max=100
+    //% speed.min=-100 speed.max=100
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#E63022
-    export function runMotorFor(motor: NezhaV2MotorPostion, direction: NezhaV2MovementDirection, speed: number, value: number, mode: NezhaV2SportsMode): void {
-        nezhaV2.setServoSpeed(speed);
-        nezhaV2.motorSpeed(motor, direction, value, mode);
+    export function runMotorFor(motor: NezhaV2MotorPostion, speed: number, value: number, mode: NezhaV2SportsMode, wait?: boolean): void {
+        nezhaV2.setServoSpeed(Math.abs(speed));
+
+        let direction: NezhaV2MovementDirection = NezhaV2MovementDirection.CW;
+
+        if (speed < 0)
+        {
+            direction = NezhaV2MovementDirection.CCW;
+        }
+
+        let buf = pins.createBuffer(8);
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = motor;
+        buf[3] = direction;
+        buf[4] = 0x70;
+        buf[5] = (value >> 8) & 0XFF;
+        buf[6] = mode;
+        buf[7] = (value >> 0) & 0XFF;
+        pins.i2cWriteBuffer(i2cAddr, buf);
+
+        if (wait == true)
+        {
+            basic.pause(getMotorDelay(motor, speed, value, mode));
+        }
+
+        //nezhaV2.motorSpeed(motor, direction, value, mode);
     }
 
     //% weight=95
