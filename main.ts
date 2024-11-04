@@ -4,8 +4,8 @@ namespace mintspark {
      * NeZha V2
      */
 
-    enum NezhaV2ServoMotionMode {
-        //%block="short path"
+    export enum ServoMotionMode {
+        //%block="shortest path"
         ShortPath = 1,
         //%block="clockwise"
         CW = 2,
@@ -149,10 +149,10 @@ namespace mintspark {
     //% weight=80
     //% subcategory="Motor / Servo"
     //% group="Servo"
-    //% block="Set motor %motor to absolute angle %angle° mode %turnmode"
+    //% block="Set motor %motor to absolute angle %angle° direction %turnmode"
     //% color=#a3a3c2
     //% targetAngle.min=0  targetAngle.max=359
-    export function goToAbsolutePosition(motor: NezhaV2MotorPostion, targetAngle: number, turnMode: NezhaV2ServoMotionMode): void {
+    export function goToAbsolutePosition(motor: NezhaV2MotorPostion, targetAngle: number, turnMode:ServoMotionMode): void {
         while (targetAngle < 0) {
             targetAngle += 360
         }
