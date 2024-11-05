@@ -1,5 +1,5 @@
 
-> Diese Seite bei [https://mpoelzl.github.io/pxt-mintspark-ik/](https://mpoelzl.github.io/pxt-mintspark-nezhav2/) öffnen
+> Diese Seite bei [https://mpoelzl.github.io/pxt-mintspark-nezhav2/](https://mpoelzl.github.io/pxt-mintspark-nezhav2/) öffnen
 
 ## NeZha V2
 
