@@ -12,7 +12,7 @@ namespace mintspark {
     }
 
     export enum MotorContinuationMode {
-        //%block="wait until complete"
+        //%block="wait complete"
         Wait = 1,
         //%block="continue immediately"
         Continue = 2
@@ -409,8 +409,8 @@ namespace mintspark {
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, value, mode, false);
-        runMotorFor(tankMotorRight, tmRSpeed, value, mode, true);
+        runMotorFor(tankMotorLeft, tmLSpeed, value, mode, MotorContinuationMode.Continue);
+        runMotorFor(tankMotorRight, tmRSpeed, value, mode, MotorContinuationMode.Wait);
     }
 
     //% weight=80
@@ -429,8 +429,8 @@ namespace mintspark {
         let distMm = (unit == DistanceUnint.Cm) ? distance * 10 : distance * 10 * 2.54;
         let requiredDegrees = distMm * wheelLinearDegreePerMm;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
-        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, MotorContinuationMode.Continue);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, MotorContinuationMode.Wait);
     }
 
     //% weight=75
@@ -449,8 +449,8 @@ namespace mintspark {
         let requiredDistanceMm = wheelBaseSpotTurnMmPerDegree * degrees;
         let requiredDegrees = requiredDistanceMm * wheelLinearDegreePerMm;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
-        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, MotorContinuationMode.Continue);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, MotorContinuationMode.Wait);
     }
 
     //% weight=70
