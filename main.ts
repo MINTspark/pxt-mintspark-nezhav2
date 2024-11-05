@@ -270,22 +270,16 @@ namespace mintspark {
     }
 
     //% weight=100
-    //% block="Move %direction"
+    //% block="Drive %direction"
     //% subcategory="Robot Tank Mode"
     //% group="Movement"
     //% color=#E63022
-    export function moveTank(direction: LinearDirection): void {
-        let speed = tankSpeed;
-
-        if (direction == LinearDirection.Backward)
-        {
-            speed = -speed;
-        }
-        
-        let tm1Speed = tankMotorLeftReversed ? -speed : speed;
-        let tm2Speed = tankMotorRightReversed ? -speed : speed;
-        runMotor(tankMotorLeft, tm1Speed);
-        runMotor(tankMotorRight, tm2Speed);
+    export function driveTank(direction: LinearDirection): void {
+        let speed = (direction == LinearDirection.Forward) ? tankSpeed : -tankSpeed;
+        let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
+        let tmRSpeed = tankMotorRightReversed ? -speed : speed;
+        runMotor(tankMotorLeft, tmLSpeed);
+        runMotor(tankMotorRight, tmRSpeed);
     }
 
     //% weight=95
@@ -296,5 +290,19 @@ namespace mintspark {
     export function stopTank(): void {
         stopMotor(tankMotorLeft);
         stopMotor(tankMotorRight);
+    }
+
+    //% weight=90
+    //% block="Drive left motor %speedLeft\\% right motor %speedRight\\%"
+    //% subcategory="Robot Tank Mode"
+    //% group="Movement"
+    //% speedLeft.min=-100 speedLeft.max=100
+    //% speedRight.min=-100 speedRight.max=100
+    //% color=#E63022
+    export function driveTankDualSpeed(speedLeft: number, speedRight: number): void {
+        let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
+        let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
+        runMotor(tankMotorLeft, tmLSpeed);
+        runMotor(tankMotorRight, tmRSpeed);
     }
 }
