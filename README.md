@@ -10,7 +10,7 @@ The NeZha V2 Expansion Pack is tailored for the micro:bit, aimed at stimulating 
 ### Installing this Extension
 
 1. Launch MakeCode editor and click the "Extensions" icon.
-2. Search for "NeZha V2" or paste the link "[https://github.com/elecfreaks/pxt-nezha2](https://github.com/mpoelzl/pxt-mintspark-nezhav2/)" to download and install the extension.
+2. Search for "NeZha V2" or paste the link "[https://github.com/mpoelzl/pxt-mintspark-nezhav2/](https://github.com/mpoelzl/pxt-mintspark-nezhav2/)" to download and install the extension.
 
 ## Instructions
 
