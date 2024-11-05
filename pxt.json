@@ -5,8 +5,7 @@
     "dependencies": {
         "core": "*",
         "radio": "*",
-        "microphone": "*",
-        "pxt-nezha2": "github:elecfreaks/pxt-nezha2#v1.0.16"
+        "microphone": "*"
     },
     "files": [
         "main.ts",
