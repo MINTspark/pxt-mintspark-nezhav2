@@ -22,7 +22,6 @@ namespace mintspark {
     let maxSpeed = 50;
     let minSpeed = 10;
     let MPU6050Initialised = false;
-    let stopDrive = true;
     let i2cAddr: number = 0x10;
 
     function restrictSpeed(speed: number):number{
@@ -115,8 +114,6 @@ namespace mintspark {
         {
             basic.pause(getMotorDelay(speed, value, mode));
         }
-
-        //nezhaV2.motorSpeed(motor, direction, value, mode);
     }
 
     //% weight=95
@@ -125,7 +122,6 @@ namespace mintspark {
     //% block="Stop motor %motor"
     //% color=#E63022
     export function stopMotor(motor: NezhaV2MotorPostion): void {
-        stopDrive = true;
         nezhaV2.nezha2MotorSpeedCtrolExport(motor, 0);
     }
 
@@ -135,7 +131,6 @@ namespace mintspark {
     //% block="Stop all motors"
     //% color=#E63022
     export function stopAllMotor(): void {
-        stopDrive = true;
         nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M1, 0);
         nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M2, 0);
         nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M3, 0);
@@ -228,7 +223,7 @@ namespace mintspark {
     //% block="Set robot motor right to %motor reverse %reverse"
     //% subcategory="Robot Tank Mode"
     //% group="Setup"
-    //% motor.defl=neZha.MotorList.M1
+    //% motor.defl=NezhaV2MotorPostion.M1
     //% reverse.defl=false
     //% reverse.shadow="toggleYesNo"
     //% color=#E63022
@@ -241,7 +236,7 @@ namespace mintspark {
     //% block="Set robot motor left to %motor reverse %reverse"
     //% subcategory="Robot Tank Mode"
     //% group="Setup"
-    //% motor.defl=neZha.MotorList.M4
+    //% motor.defl=NezhaV2MotorPostion.M1
     //% reverse.defl=true
     //% reverse.shadow="toggleYesNo"
     //% color=#E63022
@@ -265,6 +260,7 @@ namespace mintspark {
     //% group="Setup"
     //% color=#E63022
     //% speed.min=1 speed.max=100
+    //% speed.defl=30
     export function setTankSpeed(speed: number): void {
         tankSpeed = speed;
     }
@@ -305,4 +301,19 @@ namespace mintspark {
         runMotor(tankMotorLeft, tmLSpeed);
         runMotor(tankMotorRight, tmRSpeed);
     }
+
+    //% weight=85
+    //% block="Drive %direction for %value %mode"
+    //% subcategory="Robot Tank Mode"
+    //% group="Movement"
+    //% color=#E63022
+    export function driveTankFor(direction: LinearDirection, value: number, mode: NezhaV2SportsMode, wait?: boolean): void {
+        let speed = (direction == LinearDirection.Forward) ? tankSpeed : -tankSpeed;
+        let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
+        let tmRSpeed = tankMotorRightReversed ? -speed : speed;
+
+        runMotorFor(tankMotorLeft, tmLSpeed, value, mode, false);
+        runMotorFor(tankMotorRight, tmRSpeed, value, mode, true);
+    }
+
 }
