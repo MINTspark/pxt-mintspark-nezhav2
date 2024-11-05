@@ -3,7 +3,6 @@ namespace mintspark {
     /*
      * NeZha V2
      */
-
     export enum ServoMotionMode {
         //%block="shortest path"
         ShortPath = 1,
@@ -11,6 +10,13 @@ namespace mintspark {
         CW = 2,
         //%block="counterclockwise"
         CCW = 3
+    }
+
+    enum LinearDirection {
+        //%block="forward"
+        Forward = 1,
+        //%block="backward"
+        Backward = 2
     }
 
     let maxSpeed = 50;
@@ -58,10 +64,14 @@ namespace mintspark {
         return 0;
     }
 
+    /*
+    * Motor / Servo Functions
+    */
+
     //% weight=110
     //% block="Run motor %motor at speed %speed\\%"
     //% subcategory="Motor / Servo"
-    //% group="Motor"
+    //% group="Motor Functions"
     //% speed.min=-100 speed.max=100
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
@@ -74,7 +84,7 @@ namespace mintspark {
     //% weight=100
     //% block="Run motor %motor at speed %speed for %value %mode || wait %wait"
     //% subcategory="Motor / Servo"
-    //% group="Motor"
+    //% group="Motor Functions"
     //% speed.min=-100 speed.max=100
     //% wait.defl = true
     //% expandableArgumentMode="toggle"
@@ -111,7 +121,7 @@ namespace mintspark {
 
     //% weight=95
     //% subcategory="Motor / Servo"
-    //% group="Motor"
+    //% group="Motor Functions"
     //% block="Stop motor %motor"
     //% color=#E63022
     export function stopMotor(motor: NezhaV2MotorPostion): void {
@@ -121,7 +131,7 @@ namespace mintspark {
 
     //% weight=90
     //% subcategory="Motor / Servo"
-    //% group="Motor"
+    //% group="Motor Functions"
     //% block="Stop all motors"
     //% color=#E63022
     export function stopAllMotor(): void {
@@ -146,9 +156,18 @@ namespace mintspark {
         pins.i2cWriteBuffer(i2cAddr, buf);
     }
 
+    //% weight=49
+    //% subcategory="Motor / Servo"
+    //% group="Motor Functions"
+    //%block="%NezhaV2MotorPostion speed (rpm)"
+    //% color=#E63022
+    export function readServoAbsoluteSpeed(motor: NezhaV2MotorPostion): number {
+        return nezhaV2.readServoAbsoluteSpeed(motor) * 2;
+    }
+
     //% weight=80
     //% subcategory="Motor / Servo"
-    //% group="Servo"
+    //% group="Servo Functions"
     //% block="Set motor %motor to absolute angle %angle° direction %turnmode"
     //% color=#a3a3c2
     //% targetAngle.min=0  targetAngle.max=359
@@ -181,29 +200,22 @@ namespace mintspark {
 
     //% weight=50
     //% subcategory="Motor / Servo"
-    //% group="Servo"
+    //% group="Servo Functions"
     //%block="%NezhaV2MotorPostion absolute angular position"
     //% color=#a3a3c2
     export function readServoAbsolutePostion(motor: NezhaV2MotorPostion): number {
         return nezhaV2.readServoAbsolutePostion(motor);
     }
 
-    //% weight=49
-    //% subcategory="Motor / Servo"
-    //% group="Motor"
-    //%block="%NezhaV2MotorPostion speed (rpm)"
-    //% color=#E63022
-    export function readServoAbsoluteSpeed(motor: NezhaV2MotorPostion): number {
-        return nezhaV2.readServoAbsoluteSpeed(motor) * 2;
-    }
-
     /*
-     * Tank Mode
+     * Tank Mode Functions
      */
     let tankMotorLeft: NezhaV2MotorPostion = NezhaV2MotorPostion.M4;
     let tankMotorLeftReversed: boolean = true;
     let tankMotorRight: NezhaV2MotorPostion = NezhaV2MotorPostion.M1;
     let tankMotorRightReversed: boolean = false;
+    let tankSpeed = 30;
+    let wheelCircumferenceMm = 36 * Math.PI;
 
     export enum TurnDirection {
         //% block="left"
@@ -212,9 +224,9 @@ namespace mintspark {
         Right
     }
 
-    //% weight=45
+    //% weight=100
     //% block="Set robot motor right to %motor reverse %reverse"
-    //% subcategory="Tank Mode"
+    //% subcategory="Robot Tank Mode"
     //% group="Setup"
     //% motor.defl=neZha.MotorList.M1
     //% reverse.defl=false
@@ -225,9 +237,9 @@ namespace mintspark {
         tankMotorRightReversed = reverse;
     }
 
-    //% weight=50
+    //% weight=95
     //% block="Set robot motor left to %motor reverse %reverse"
-    //% subcategory="Tank Mode"
+    //% subcategory="Robot Tank Mode"
     //% group="Setup"
     //% motor.defl=neZha.MotorList.M4
     //% reverse.defl=true
@@ -238,222 +250,51 @@ namespace mintspark {
         tankMotorLeftReversed = reverse;
     }
 
-    /*
-     * PlanetX Sensors
-     */
+    //% weight=90
+    //% block="Set wheel diameter to %diameter mm"
+    //% subcategory="Robot Tank Mode"
+    //% group="Setup"
+    //% color=#E63022
+    export function setTankWheelDiameter(diameter: number): void {
+        wheelCircumferenceMm = diameter * Math.PI;
+    } 
 
-    //% weight=110
-    //% subcategory="Sensor / Input"
-    //% group="Sensor"
-    //% block="Soil moisture sensor %Rjpin value(0~100)"
-    //% Rjpin.fieldEditor="gridpicker"
-    //% Rjpin.fieldOptions.columns=2
-    //% color=#ffcc66
-    export function soilHumidity(Rjpin: PlanetX_Basic.AnalogRJPin): number {
-        return PlanetX_Basic.soilHumidity(Rjpin);
-    }
-
-    //% weight=105
-    //% subcategory="Sensor / Input"
-    //% group="Input"
-    //% block="Trimpot %Rjpin analog value"
-    //% Rjpin.fieldEditor="gridpicker"
-    //% Rjpin.fieldOptions.columns=2
-    //% color=#ffcc66
-    export function trimpot(Rjpin: PlanetX_Display.AnalogRJPin): number {
-        return PlanetX_Basic.trimpot(Rjpin);
+    //% weight=85
+    //% block="Set speed to %speed"
+    //% subcategory="Robot Tank Mode"
+    //% group="Setup"
+    //% color=#E63022
+    //% speed.min=1 speed.max=100
+    export function setTankSpeed(speed: number): void {
+        tankSpeed = speed;
     }
 
     //% weight=100
-    //% subcategory="Sensor / Input"
-    //% group="Input"
-    //% block="Crash Sensor %Rjpin is pressed"
-    //% Rjpin.fieldEditor="gridpicker"
-    //% Rjpin.fieldOptions.columns=2
-    //% color=#EA5532 
-    export function Crash(Rjpin: PlanetX_Display.DigitalRJPin): boolean {
-        return PlanetX_Basic.Crash(Rjpin);
-    }
+    //% block="Move %direction"
+    //% subcategory="Robot Tank Mode"
+    //% group="Movement"
+    //% color=#E63022
+    export function moveTank(direction: LinearDirection): void {
+        let speed = tankSpeed;
 
-    const crashSensorEventId = 54119;
-    //% weight=95
-    //% subcategory="Sensor / Input"
-    //% group="Input"
-    //% block="Crash Sensor %Rjpin pressed"
-    //% Rjpin.fieldEditor="gridpicker"
-    //% Rjpin.fieldOptions.columns=2
-    //% color=#EA5532 
-    export function onCrashSensorPressed(Rjpin: PlanetX_Display.DigitalRJPin, handler: () => void) {
-        control.onEvent(crashSensorEventId, 0, handler);
-        control.inBackground(() => {
-            let lastState = PlanetX_Basic.Crash(Rjpin);
-            while (true) {
-                let isPressed = PlanetX_Basic.Crash(Rjpin);
-
-                if (isPressed && !lastState) {
-
-                    control.raiseEvent(crashSensorEventId, 0);
-                }
-                lastState = isPressed;
-                basic.pause(200);
-            }
-        })
-    }
-
-    let lastUltrasoundSensorReading = 50;
-
-    //% weight=80
-    //% block="Ultrasonic sensor %Rjpin distance %distance_unit"
-    //% subcategory="Sensor / Input"
-    //% group="Sensor"
-    //% Rjpin.fieldEditor="gridpicker"
-    //% Rjpin.fieldOptions.columns=2
-    //% distance_unit.fieldEditor="gridpicker"
-    //% distance_unit.fieldOptions.columns=2
-    //% color=#EA5532
-    export function ultrasoundSensor(Rjpin: PlanetX_Basic.DigitalRJPin, distance_unit: PlanetX_Basic.Distance_Unit_List): number {
-        let distance = PlanetX_Basic.ultrasoundSensor(Rjpin, distance_unit);
-
-        if (distance <= 0)
+        if (direction == LinearDirection.Backward)
         {
-            distance = lastUltrasoundSensorReading;
+            speed = -speed;
         }
-
-        lastUltrasoundSensorReading = distance;
-        return lastUltrasoundSensorReading;
+        
+        let tm1Speed = tankMotorLeftReversed ? -tankSpeed : tankSpeed;
+        let tm2Speed = tankMotorRightReversed ? -tankSpeed : tankSpeed;
+        runMotor(tankMotorLeft, tm1Speed);
+        runMotor(tankMotorRight, tm2Speed);
     }
 
-    const ultrasonicSensorEventId = 54121;
-    //% weight=78
-    //% subcategory="Sensor / Input"
-    //% group="Sensor"
-    //% block="Ultrasonic Sensor %Rjpin triggered"
-    //% Rjpin.fieldEditor="gridpicker"
-    //% Rjpin.fieldOptions.columns=2
-    export function onUltrasonicSensorTriggered(Rjpin: PlanetX_Display.DigitalRJPin, handler: () => void) {
-        control.onEvent(ultrasonicSensorEventId, 0, handler);
-        control.inBackground(() => {
-            let lastState = false;
-            while (true) {
-                let distance = PlanetX_Basic.ultrasoundSensor(Rjpin, PlanetX_Basic.Distance_Unit_List.Distance_Unit_cm);
-                let detected = distance > 0 && distance < 6;
-
-                if (detected && !lastState) {
-                    control.raiseEvent(ultrasonicSensorEventId, 0);
-                }
-
-                lastState = detected;
-                basic.pause(200);
-            }
-        })
-    }
-    
-    //% weight=75
-    //% subcategory="Sensor / Input"
-    //% group="Sensor"
-    //% Rjpin.fieldEditor="gridpicker"
-    //% Rjpin.fieldOptions.columns=2
-    //% color=#EA5532
-    //% block="Line-tracking sensor %Rjpin is %state"
-    export function trackingSensor(Rjpin: PlanetX_Basic.DigitalRJPin, state: PlanetX_Basic.TrackingStateType): boolean {
-        return PlanetX_Basic.trackingSensor(Rjpin, state);
-    }
-
-    //% weight=55
-    //% subcategory="Sensor / Input"
-    //% group="Sensor"
-    //% block="Color sensor IIC port detects %color"
-    //% color=#00B1ED
-    //% color.fieldEditor="gridpicker" color.fieldOptions.columns=3
-    export function checkColor(color: PlanetX_Basic.ColorList): boolean {
-        return PlanetX_Basic.checkColor(color);
-    }
-
-    //% weight=50
-    //% subcategory="Sensor / Input"
-    //% group="Sensor"
-    //% block="Color sensor IIC port color HUE(0~360)"
-    //% color=#00B1ED
-    //%export function readColor(): number {
-    //%    return PlanetX_Basic.readColor();
-    //%}
-
-    const colorSensorEventId = 54120;
-    //% weight=45
-    //% subcategory="Sensor / Input"
-    //% group="Sensor"
-    //% block="Color sensor detects %color"
-    //% color=#00B1ED
-    //% color.fieldEditor="gridpicker" color.fieldOptions.columns=3
-    export function onColorSensorDetectsColor(color: PlanetX_Basic.ColorList, handler: () => void) {
-        control.onEvent(colorSensorEventId, 0, handler);
-        control.inBackground(() => {
-            let lastIsMatch = PlanetX_Basic.checkColor(color);
-            while (true) {
-                let isMatch = PlanetX_Basic.checkColor(color);
-
-                if (isMatch && !lastIsMatch) {
-                    control.raiseEvent(colorSensorEventId, 0);
-                }
-                lastIsMatch = isMatch;
-                basic.pause(200);
-            }
-        })
-    }
-
-    /*
-     * PlanetX Output
-     */
-
-    //% subcategory="Light / Display"
-    //% group="Light"
-    //% block="LED %Rjpin toggle to $ledstate || brightness %brightness \\%"
-    //% Rjpin.fieldEditor="gridpicker" Rjpin.fieldOptions.columns=2
-    //% brightness.min=0 brightness.max=100
-    //% ledstate.shadow="toggleOnOff"
-    //% color=#EA5532 
-    //% expandableArgumentMode="toggle"
-    export function ledBrightness(Rjpin: PlanetX_Display.DigitalRJPin, ledstate: boolean, brightness: number = 100): void {
-        PlanetX_Display.ledBrightness(Rjpin, ledstate, brightness);
-    }
-
-    //% subcategory="Light / Display"
-    //% group="Display"
-    //% line.min=1 line.max=8 line.defl=1
-    //% text.defl="Hello!"
-    //% block="Display: Show text %text on line %line"
-    //% color=#00B1ED
-    export function oledShowText(text: string, line: number) {
-        PlanetX_Display.showUserText(line, text);
-    }
-
-    //% subcategory="Light / Display"
-    //% group="Display"
-    //% line.min=1 line.max=8 line.defl=1 
-    //% n.defl=1234
-    //% block="Display: Show number %n on line %line"
-    //% color=#00B1ED
-    export function oledShowNumber(n: number, line: number) {
-        PlanetX_Display.showUserNumber(line, n);
-    }
-
-    //% subcategory="Light / Display"
-    //% group="Display"
-    //% block="clear display" color=#00B1ED
-    export function oledClear() {
-        PlanetX_Display.oledClear();
-    }
-
-
-
-
-    function setupMPU6050(): boolean {
-        // Setup IMU
-        if (!MPU6050Initialised) {
-            MPU6050Initialised = MINTsparkMpu6050.InitMPU6050(0);
-            return MPU6050Initialised;
-        }
-
-        return true;
+    //% weight=95
+    //% block="Stop movement"
+    //% subcategory="Robot Tank Mode"
+    //% group="Movement"
+    //% color=#E63022
+    export function stopTank(): void {
+        stopMotor(tankMotorLeft);
+        stopMotor(tankMotorRight);
     }
 }

@@ -6,9 +6,7 @@
         "core": "*",
         "radio": "*",
         "microphone": "*",
-        "pxt-mintspark-mpu6050": "github:mpoelzl/pxt-mintspark-mpu6050#v1.1.2",
-        "pxt-nezha2": "github:elecfreaks/pxt-nezha2#v1.0.16",
-        "pxt-PlanetX": "github:elecfreaks/pxt-planetx#v1.5.22"
+        "pxt-nezha2": "github:elecfreaks/pxt-nezha2#v1.0.16"
     },
     "files": [
         "main.ts",
