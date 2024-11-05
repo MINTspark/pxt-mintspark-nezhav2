@@ -14,7 +14,7 @@ The NeZha V2 Expansion Pack is tailored for the micro:bit, aimed at stimulating 
 
 ## Instructions
 
-For detailed examples and instructions, visit our [online tutorials](https://wiki.elecfreaks.com/en/microbit/expansion-board/nezha-v2/).
+For detailed examples and instructions, visit the Elecfreaks Wiki [online tutorials](https://wiki.elecfreaks.com/en/microbit/expansion-board/nezha-v2/).
 
 ## Supported Targets
 
