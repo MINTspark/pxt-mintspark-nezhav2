@@ -31,15 +31,6 @@ namespace mintspark {
         Seconds = 3
     }
 
-    export enum TankMovementMode {
-        //%block="turns"
-        Turns = 1,
-        //%block="degrees"
-        Degrees = 2,
-        //%block="seconds"
-        Seconds = 3
-    }
-
     export enum MotorRotationDirection {
         //%block="clockwise"
         CW = 1,
@@ -308,7 +299,6 @@ namespace mintspark {
     let tankMotorLeftReversed: boolean = true;
     let tankMotorRight: MotorConnector = MotorConnector.M1;
     let tankMotorRightReversed: boolean = false;
-    let tankSpeed = 30;
     let wheelCircumferenceMm = 36 * Math.PI;
 
     export enum TurnDirection {
@@ -366,9 +356,9 @@ namespace mintspark {
     //% group="Setup"
     //% color=#E63022
     //% speed.min=1 speed.max=100 speed.defl=30
-    function setTankSpeed(speed: number): void {
-        tankSpeed = speed;
-    }
+    //function setTankSpeed(speed: number): void {
+        //tankSpeed = speed;
+    //}
 
     //% weight=100
     //% block="Drive %direction speed %speed"
@@ -409,18 +399,39 @@ namespace mintspark {
     }
 
     //% weight=85
-    //% block="Drive %direction for %value %mode"
+    //% block="Drive %direction speed %speed for %value %mode"
     //% subcategory="Robot Tank Mode"
     //% group="Movement"
     //% color=#E63022
+    //% speedLeft.min=1 speedLeft.max=100 speed.defl=30
     //% inlineInputMode=inline
-    export function driveTankFor(direction: LinearDirection, value: number, mode: MotorMovementMode, wait?: boolean): void {
-        let speed = (direction == LinearDirection.Forward) ? tankSpeed : -tankSpeed;
+    export function driveTankFor(direction: LinearDirection, speed: number, value: number, mode: MotorMovementMode): void {
+        speed = (direction == LinearDirection.Forward) ? speed : -speed;
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
 
         runMotorFor(tankMotorLeft, tmLSpeed, value, mode, false);
         runMotorFor(tankMotorRight, tmRSpeed, value, mode, true);
+    }
+
+    //% weight=80
+    //% block="Drive %direction speed %speed for %distance %unit"
+    //% subcategory="Robot Tank Mode"
+    //% group="Movement"
+    //% color=#E63022
+    //% speed.min=1 speed.max=100 speed.defl=30
+    //% inlineInputMode=inline
+    export function driveTankForDistance(direction: LinearDirection, speed: number, distance: number, unit: DistanceUnint): void {
+        speed = (direction == LinearDirection.Forward) ? speed : -speed;
+        let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
+        let tmRSpeed = tankMotorRightReversed ? -speed : speed;
+
+        // Calculate required degrees for distance
+        let distMm = (unit == DistanceUnint.cm) ? distance * 10 : distance * 10 * 2.54;
+        let requiredDegrees = distMm * (360.0 / wheelCircumferenceMm);
+
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
     }
 
     //% weight=100
