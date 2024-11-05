@@ -6,9 +6,16 @@ namespace mintspark {
 
     export enum DistanceUnint {
         //%block="cm"
-        cm = 1,
+        Cm = 1,
         //%block="inch"
-        inch = 2
+        Inch = 2
+    }
+
+    export enum MotorContinuationMode {
+        //%block="wait until complete"
+        Wait = 1,
+        //%block="continue immediately"
+        Continue = 2
     }
 
     export enum MotorConnector {
@@ -146,15 +153,14 @@ namespace mintspark {
     }
     
     //% weight=100
-    //% block="Run motor %motor at speed %speed for %value %mode || wait %wait"
+    //% block="Run motor %motor at speed %speed for %value %mode and %wait"
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
     //% speed.min=-100 speed.max=100 speed.defl=30
     //% wait.defl=true
-    //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#0f8c1c
-    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean): void {
+    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait: MotorContinuationMode): void {
         setServoSpeed(motor, Math.abs(speed));
 
         let direction: MotorRotationDirection = MotorRotationDirection.CW;
@@ -175,7 +181,7 @@ namespace mintspark {
         buf[7] = (value >> 0) & 0XFF;
         pins.i2cWriteBuffer(i2cAddr, buf);
 
-        if (wait == true)
+        if (wait == MotorContinuationMode.Wait)
         {
             waitForMotorMovementComplete(motor, getMotorDelay(speed, value, mode) + 100);
         }
@@ -343,7 +349,7 @@ namespace mintspark {
     export function setTankWheelDiameter(diameter: number, unit: DistanceUnint): void {
         let wheelCircumferenceMm = diameter * Math.PI * 10;
 
-        if (unit == DistanceUnint.inch)
+        if (unit == DistanceUnint.Inch)
         {
             wheelCircumferenceMm = wheelCircumferenceMm * 2.54;
         }
@@ -359,7 +365,7 @@ namespace mintspark {
     export function setTankWheelbase(distance: number, unit: DistanceUnint): void {
         let wheelBaseDiameterMm = distance * Math.PI * 10;
 
-        if (unit == DistanceUnint.inch) 
+        if (unit == DistanceUnint.Inch) 
         {
             wheelBaseDiameterMm = wheelBaseDiameterMm * 2.54;
         }
@@ -420,7 +426,7 @@ namespace mintspark {
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
 
         // Calculate required degrees for distance
-        let distMm = (unit == DistanceUnint.cm) ? distance * 10 : distance * 10 * 2.54;
+        let distMm = (unit == DistanceUnint.Cm) ? distance * 10 : distance * 10 * 2.54;
         let requiredDegrees = distMm * wheelLinearDegreePerMm;
 
         runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
