@@ -114,6 +114,7 @@ namespace mintspark {
     //% block="Run motor %motor at speed %speed\\%"
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
+    //% speed.defl = 30
     //% speed.min=-100 speed.max=100
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
@@ -143,6 +144,7 @@ namespace mintspark {
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
     //% speed.min=-100 speed.max=100
+    //% speed.defl = 30
     //% wait.defl = true
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
@@ -195,7 +197,7 @@ namespace mintspark {
         runMotor(MotorConnector.M4, 0);
     }
 
-    export function setServoSpeed(motor: MotorConnector, speed: number): void {
+    function setServoSpeed(motor: MotorConnector, speed: number): void {
         speed *= 9
         let buf = pins.createBuffer(8)
         buf[0] = 0xFF;
@@ -367,6 +369,7 @@ namespace mintspark {
     //% subcategory="Robot Tank Mode"
     //% group="Movement"
     //% speed.min=1 speed.max=100
+    //% speed.defl = 30
     //% color=#E63022
     export function driveTank(direction: LinearDirection, speed: number): void {
         speed = (direction == LinearDirection.Forward) ? speed : -speed;
