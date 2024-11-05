@@ -177,8 +177,30 @@ namespace mintspark {
 
         if (wait == true)
         {
-            basic.pause(getMotorDelay(speed, value, mode));
+            waitForMotorMovementComplete(motor, getMotorDelay(speed, value, mode) + 100);
         }
+    }
+
+    //% weight=98
+    //% subcategory="Motor / Servo"
+    //% group="Motor Functions"
+    //%block="%motor speed (rpm)"
+    //% color=#0f8c1c
+    export function readServoAbsoluteSpeed(motor: MotorConnector): number {
+        let buf = pins.createBuffer(8)
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = motor;
+        buf[3] = 0x00;
+        buf[4] = 0x47;
+        buf[5] = 0x00;
+        buf[6] = 0xF5;
+        buf[7] = 0x00;
+        pins.i2cWriteBuffer(i2cAddr, buf);
+        basic.pause(3);
+        let ServoSpeed1Arr = pins.i2cReadBuffer(i2cAddr, 2);
+        let Servo1Speed = (ServoSpeed1Arr[1] << 8) | (ServoSpeed1Arr[0]);
+        return Math.floor(Servo1Speed * 0.0926 * 2);
     }
 
     //% weight=95
@@ -214,28 +236,6 @@ namespace mintspark {
         buf[6] = 0x00;
         buf[7] = (speed >> 0) & 0XFF;
         pins.i2cWriteBuffer(i2cAddr, buf);
-    }
-
-    //% weight=49
-    //% subcategory="Motor / Servo"
-    //% group="Motor Functions"
-    //%block="%motor speed (rpm)"
-    //% color=#0f8c1c
-    export function readServoAbsoluteSpeed(motor: MotorConnector): number {
-        let buf = pins.createBuffer(8)
-        buf[0] = 0xFF;
-        buf[1] = 0xF9;
-        buf[2] = motor;
-        buf[3] = 0x00;
-        buf[4] = 0x47;
-        buf[5] = 0x00;
-        buf[6] = 0xF5;
-        buf[7] = 0x00;
-        pins.i2cWriteBuffer(i2cAddr, buf);
-        basic.pause(3);
-        let ServoSpeed1Arr = pins.i2cReadBuffer(i2cAddr, 2);
-        let Servo1Speed = (ServoSpeed1Arr[1] << 8) | (ServoSpeed1Arr[0]);
-        return Math.floor(Servo1Speed * 0.0926 * 2);
     }
 
     // A function to block the thread until a motor movement is completed or the max time has elapsed
