@@ -181,7 +181,7 @@ namespace mintspark {
         buf[7] = (value >> 0) & 0XFF;
         pins.i2cWriteBuffer(i2cAddr, buf);
 
-        if (wait == MotorContinuationMode.Wait)
+        if (wait == null || wait == MotorContinuationMode.Wait)
         {
             waitForMotorMovementComplete(motor, getMotorDelay(speed, value, mode) + 100);
         }
