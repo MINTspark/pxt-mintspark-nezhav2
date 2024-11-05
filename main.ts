@@ -326,7 +326,7 @@ namespace mintspark {
     //% block="Set robot motor left to %motor reverse %reverse"
     //% subcategory="Robot Tank Drive"
     //% group="Setup"
-    //% motor.defl=MotorConnector.M1
+    //% motor.defl=MotorConnector.M2
     //% reverse.defl=true
     //% reverse.shadow="toggleYesNo"
     //% color=#E63022
