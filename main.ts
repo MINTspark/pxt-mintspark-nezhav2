@@ -157,10 +157,11 @@ namespace mintspark {
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
     //% speed.min=-100 speed.max=100 speed.defl=30
-    //% wait.defl=MotorContinuationMode.Wait
+    //% wait.defl=true
+    //% wait.shadow="toggleYesNo"
     //% inlineInputMode=inline
     //% color=#0f8c1c
-    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: MotorContinuationMode): void {
+    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean): void {
         setServoSpeed(motor, Math.abs(speed));
 
         let direction: MotorRotationDirection = MotorRotationDirection.CW;
@@ -181,7 +182,7 @@ namespace mintspark {
         buf[7] = (value >> 0) & 0XFF;
         pins.i2cWriteBuffer(i2cAddr, buf);
 
-        if (wait == null || wait == MotorContinuationMode.Wait)
+        if (!(wait == false))
         {
             waitForMotorMovementComplete(motor, getMotorDelay(speed, value, mode) + 100);
         }
@@ -409,8 +410,8 @@ namespace mintspark {
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, value, mode, MotorContinuationMode.Continue);
-        runMotorFor(tankMotorRight, tmRSpeed, value, mode, MotorContinuationMode.Wait);
+        runMotorFor(tankMotorLeft, tmLSpeed, value, mode, false);
+        runMotorFor(tankMotorRight, tmRSpeed, value, mode, true);
     }
 
     //% weight=80
@@ -429,8 +430,8 @@ namespace mintspark {
         let distMm = (unit == DistanceUnint.Cm) ? distance * 10 : distance * 10 * 2.54;
         let requiredDegrees = distMm * wheelLinearDegreePerMm;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, MotorContinuationMode.Continue);
-        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, MotorContinuationMode.Wait);
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
     }
 
     //% weight=75
@@ -449,8 +450,8 @@ namespace mintspark {
         let requiredDistanceMm = wheelBaseSpotTurnMmPerDegree * degrees;
         let requiredDegrees = requiredDistanceMm * wheelLinearDegreePerMm;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, MotorContinuationMode.Continue);
-        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, MotorContinuationMode.Wait);
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
     }
 
     //% weight=70
