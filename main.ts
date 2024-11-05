@@ -12,7 +12,7 @@ namespace mintspark {
         CCW = 3
     }
 
-    enum LinearDirection {
+    export enum LinearDirection {
         //%block="forward"
         Forward = 1,
         //%block="backward"
@@ -282,8 +282,8 @@ namespace mintspark {
             speed = -speed;
         }
         
-        let tm1Speed = tankMotorLeftReversed ? -tankSpeed : tankSpeed;
-        let tm2Speed = tankMotorRightReversed ? -tankSpeed : tankSpeed;
+        let tm1Speed = tankMotorLeftReversed ? -speed : speed;
+        let tm2Speed = tankMotorRightReversed ? -speed : speed;
         runMotor(tankMotorLeft, tm1Speed);
         runMotor(tankMotorRight, tm2Speed);
     }
