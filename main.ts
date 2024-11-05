@@ -12,9 +12,9 @@ namespace mintspark {
     }
 
     export enum MotorContinuationMode {
-        //%block="wait complete"
+        //%block="yes"
         Wait = 1,
-        //%block="continue immediately"
+        //%block="no"
         Continue = 2
     }
 
@@ -153,11 +153,11 @@ namespace mintspark {
     }
     
     //% weight=100
-    //% block="Run motor %motor at speed %speed for %value %mode and %wait"
+    //% block="Run motor %motor at speed %speed for %value %mode || wait complete %wait"
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
     //% speed.min=-100 speed.max=100 speed.defl=30
-    //% wait.defl=true
+    //% wait.defl=MotorContinuationMode.Wait
     //% inlineInputMode=inline
     //% color=#0f8c1c
     export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait: MotorContinuationMode): void {
@@ -465,6 +465,26 @@ namespace mintspark {
         let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
         runMotor(tankMotorLeft, tmLSpeed);
         runMotor(tankMotorRight, tmRSpeed);
+    }
+
+    //% weight=65
+    //% block="Drive left motor %speedLeft\\% right motor %speedRight\\% for %seconds seconds"
+    //% subcategory="Robot Tank Drive"
+    //% group="Movement"
+    //% speedLeft.min=-100 speedLeft.max=100
+    //% speedRight.min=-100 speedRight.max=100
+    //% color=#5285bf
+    export function driveTankDualSpeedForSeconds(speedLeft: number, speedRight: number, seconds: number): void {
+        let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
+        let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
+        let timeMs = seconds * 1000;
+        runMotor(tankMotorLeft, tmLSpeed);
+        runMotor(tankMotorRight, tmRSpeed);
+
+        let startTime = input.runningTime();
+        while (input.runningTime() - startTime < timeMs) {
+            basic.pause(100);
+        }
     }
 
     //% weight=100
