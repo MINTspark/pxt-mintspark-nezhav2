@@ -54,6 +54,13 @@ namespace mintspark {
         Backward = 2
     }
 
+    export enum TurnDirection {
+        //% block="left"
+        Left,
+        //% block="right"
+        Right
+    }
+
     let i2cAddr: number = 0x10;
 
     // Restrict Motor speed if required
@@ -299,18 +306,12 @@ namespace mintspark {
     let tankMotorLeftReversed: boolean = true;
     let tankMotorRight: MotorConnector = MotorConnector.M1;
     let tankMotorRightReversed: boolean = false;
-    let wheelCircumferenceMm = 36 * Math.PI;
-
-    export enum TurnDirection {
-        //% block="left"
-        Left,
-        //% block="right"
-        Right
-    }
+    let wheelLinearDegreePerMm = 360.0 / (36 * Math.PI);
+    let wheelBaseSpotTurnMmPerDegree = 75 * Math.PI / 360.0;
 
     //% weight=100
     //% block="Set robot motor right to %motor reverse %reverse"
-    //% subcategory="Robot Tank Mode"
+    //% subcategory="Robot Tank Drive"
     //% group="Setup"
     //% motor.defl=MotorConnector.M1
     //% reverse.defl=false
@@ -323,7 +324,7 @@ namespace mintspark {
 
     //% weight=95
     //% block="Set robot motor left to %motor reverse %reverse"
-    //% subcategory="Robot Tank Mode"
+    //% subcategory="Robot Tank Drive"
     //% group="Setup"
     //% motor.defl=MotorConnector.M1
     //% reverse.defl=true
@@ -336,23 +337,39 @@ namespace mintspark {
 
     //% weight=90
     //% block="Set wheel diameter to %diameter %unit"
-    //% subcategory="Robot Tank Mode"
+    //% subcategory="Robot Tank Drive"
     //% group="Setup"
     //% color=#E63022
     export function setTankWheelDiameter(diameter: number, unit: DistanceUnint): void {
-        if (unit == DistanceUnint.cm)
+        let wheelCircumferenceMm = diameter * Math.PI * 10;
+
+        if (unit == DistanceUnint.inch)
         {
-            wheelCircumferenceMm = diameter * Math.PI * 10;
+            wheelCircumferenceMm = wheelCircumferenceMm * 2.54;
         }
-        else
-        {
-            wheelCircumferenceMm = diameter * Math.PI * 2.54 * 10;
-        }
+
+        wheelLinearDegreePerMm = 360.0 / wheelCircumferenceMm;
     } 
 
     //% weight=85
+    //% block="Set wheelbase distance to %diameter %unit"
+    //% subcategory="Robot Tank Drive"
+    //% group="Setup"
+    //% color=#E63022
+    export function setTankWheelbase(distance: number, unit: DistanceUnint): void {
+        let wheelBaseDiameterMm = distance * Math.PI * 10;
+
+        if (unit == DistanceUnint.inch) 
+        {
+            wheelBaseDiameterMm = wheelBaseDiameterMm * 2.54;
+        }
+
+        wheelBaseSpotTurnMmPerDegree = wheelBaseDiameterMm / 360.0;
+    }
+
+    //% weight=85
     //% block="Set speed to %speed"
-    //% subcategory="Robot Tank Mode"
+    //% subcategory="Robot Tank Drive"
     //% group="Setup"
     //% color=#E63022
     //% speed.min=1 speed.max=100 speed.defl=30
@@ -362,7 +379,7 @@ namespace mintspark {
 
     //% weight=100
     //% block="Drive %direction speed %speed"
-    //% subcategory="Robot Tank Mode"
+    //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% speed.min=1 speed.max=100 speed.defl=30
     //% color=#E63022
@@ -376,7 +393,7 @@ namespace mintspark {
 
     //% weight=95
     //% block="Stop movement"
-    //% subcategory="Robot Tank Mode"
+    //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% color=#E63022
     export function stopTank(): void {
@@ -386,7 +403,7 @@ namespace mintspark {
 
     //% weight=90
     //% block="Drive left motor %speedLeft\\% right motor %speedRight\\%"
-    //% subcategory="Robot Tank Mode"
+    //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% speedLeft.min=-100 speedLeft.max=100
     //% speedRight.min=-100 speedRight.max=100
@@ -400,7 +417,7 @@ namespace mintspark {
 
     //% weight=85
     //% block="Drive %direction speed %speed for %value %mode"
-    //% subcategory="Robot Tank Mode"
+    //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% color=#E63022
     //% speedLeft.min=1 speedLeft.max=100 speed.defl=30
@@ -416,7 +433,7 @@ namespace mintspark {
 
     //% weight=80
     //% block="Drive %direction speed %speed for %distance %unit"
-    //% subcategory="Robot Tank Mode"
+    //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% color=#E63022
     //% speed.min=1 speed.max=100 speed.defl=30
@@ -428,7 +445,27 @@ namespace mintspark {
 
         // Calculate required degrees for distance
         let distMm = (unit == DistanceUnint.cm) ? distance * 10 : distance * 10 * 2.54;
-        let requiredDegrees = distMm * (360.0 / wheelCircumferenceMm);
+        let requiredDegrees = distMm * wheelLinearDegreePerMm;
+
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
+    }
+
+    //% weight=75
+    //% block="Turn %direction speed %speed for %degrees %unit"
+    //% subcategory="Robot Tank Drive"
+    //% group="Movement"
+    //% color=#E63022
+    //% speed.min=1 speed.max=100 speed.defl=30
+    //% inlineInputMode=inline
+    export function spotTurnTankForDegrees(direction: TurnDirection, speed: number, degrees: number): void {
+        speed = (direction == TurnDirection.Left) ? speed : -speed;
+        let tmLSpeed = (tankMotorLeftReversed ? -speed : speed) * -1;
+        let tmRSpeed = tankMotorRightReversed ? -speed : speed;
+
+        // Calculate required degrees for turn
+        let requiredDistanceMm = wheelBaseSpotTurnMmPerDegree * degrees;
+        let requiredDegrees = requiredDistanceMm * wheelLinearDegreePerMm;
 
         runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
         runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
