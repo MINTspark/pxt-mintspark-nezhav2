@@ -3,7 +3,35 @@ namespace mintspark {
     /*
      * NeZha V2
      */
-    export enum ServoMotionMode {
+
+    enum MotorConnector {
+        //%block="M1"
+        M1 = 1,
+        //%block="M2"
+        M2 = 2,
+        //%block="M3"
+        M3 = 3,
+        //%block="M4"
+        M4 = 4
+    }
+
+    enum MotorMovementMode {
+        //%block="turns"
+        Turns = 1,
+        //%block="degrees"
+        Degrees = 2,
+        //%block="seconds"
+        Seconds = 3
+    }
+
+    enum MotorRotationDirection {
+        //%block="clockwise"
+        CW = 1,
+        //%block="counterclockwise"
+        CCW = 2
+    }
+
+    export enum ServoMovementMode {
         //%block="shortest path"
         ShortPath = 1,
         //%block="clockwise"
@@ -19,11 +47,17 @@ namespace mintspark {
         Backward = 2
     }
 
-    let maxSpeed = 50;
-    let minSpeed = 10;
-    let MPU6050Initialised = false;
     let i2cAddr: number = 0x10;
 
+    // Restrict Motor speed if required
+    // Sometimes 100% is too much for younger learners
+    // Sometimes a value too low can make the motor stall 
+    // Set the min and max values here:
+    let maxSpeed = 100;
+    let minSpeed = 5;
+
+    // Enforce the min and max speeds set above
+    // The entered speed will be mapped to the available range
     function restrictSpeed(speed: number):number{
         if (speed > 100) { speed = 100 };
         if (speed < -100) { speed = -100 };
@@ -43,29 +77,31 @@ namespace mintspark {
         return 0;
     }
 
-    function getMotorDelay(speed: number, value: number, motorFunction: NezhaV2SportsMode) : number {
-        speed *= 9;
+    /*
+    * Motor / Servo Functions
+    */
 
+    // Calculate how much time is needed to complete a motor function and return it in ms
+    // This can be used to block the thread for the required amount of time to let the motor function complete
+    function getMotorDelay(speed: number, value: number, motorFunction: MotorMovementMode): number {
         if (value == 0 || speed == 0) {
             return 0;
         }
 
-        if (motorFunction == NezhaV2SportsMode.Circle) {
+        speed *= 9;
+
+        if (motorFunction == MotorMovementMode.Turns) {
             return value * 360000.0 / speed + 500;
-        } 
-        else if (motorFunction == NezhaV2SportsMode.Second) {
+        }
+        else if (motorFunction == MotorMovementMode.Seconds) {
             return (value * 1000);
-        } 
-        else if (motorFunction == NezhaV2SportsMode.Degree) {
+        }
+        else if (motorFunction == MotorMovementMode.Degrees) {
             return value * 1000.0 / speed + 500;
         }
 
         return 0;
     }
-
-    /*
-    * Motor / Servo Functions
-    */
 
     //% weight=110
     //% block="Run motor %motor at speed %speed\\%"
@@ -75,9 +111,24 @@ namespace mintspark {
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#E63022
-    export function runMotor(motor: NezhaV2MotorPostion, speed: number): void {
+    export function runMotor(motor: MotorConnector, speed: number): void {
         speed = restrictSpeed(speed);
-        nezhaV2.nezha2MotorSpeedCtrolExport(motor, speed);
+
+        let buf = pins.createBuffer(8)
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = motor;
+        if (speed > 0) {
+            buf[3] = MotorRotationDirection.CW;
+        }
+        else {
+            buf[3] = MotorRotationDirection.CCW;
+        }
+        buf[4] = 0x60;
+        buf[5] = Math.abs(speed);
+        buf[6] = 0xF5;
+        buf[7] = 0x00;
+        pins.i2cWriteBuffer(i2cAddr, buf);
     }
     
     //% weight=100
@@ -89,14 +140,14 @@ namespace mintspark {
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#E63022
-    export function runMotorFor(motor: NezhaV2MotorPostion, speed: number, value: number, mode: NezhaV2SportsMode, wait?: boolean): void {
-        nezhaV2.setServoSpeed(Math.abs(speed));
+    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean): void {
+        setServoSpeed(motor, Math.abs(speed));
 
-        let direction: NezhaV2MovementDirection = NezhaV2MovementDirection.CW;
+        let direction: MotorRotationDirection = MotorRotationDirection.CW;
 
         if (speed < 0)
         {
-            direction = NezhaV2MovementDirection.CCW;
+            direction = MotorRotationDirection.CCW;
         }
 
         let buf = pins.createBuffer(8);
@@ -121,8 +172,8 @@ namespace mintspark {
     //% group="Motor Functions"
     //% block="Stop motor %motor"
     //% color=#E63022
-    export function stopMotor(motor: NezhaV2MotorPostion): void {
-        nezhaV2.nezha2MotorSpeedCtrolExport(motor, 0);
+    export function stopMotor(motor: MotorConnector): void {
+        runMotor(motor, 0);
     }
 
     //% weight=90
@@ -131,18 +182,18 @@ namespace mintspark {
     //% block="Stop all motors"
     //% color=#E63022
     export function stopAllMotor(): void {
-        nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M1, 0);
-        nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M2, 0);
-        nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M3, 0);
-        nezhaV2.nezha2MotorSpeedCtrolExport(NezhaV2MotorPostion.M4, 0);
+        runMotor(MotorConnector.M1, 0);
+        runMotor(MotorConnector.M2, 0);
+        runMotor(MotorConnector.M3, 0);
+        runMotor(MotorConnector.M4, 0);
     }
 
-    export function setServoSpeed(motor: NezhaV2MotorPostion, speed: number): void {
-        speed *= 15
+    export function setServoSpeed(motor: MotorConnector, speed: number): void {
+        speed *= 9
         let buf = pins.createBuffer(8)
         buf[0] = 0xFF;
         buf[1] = 0xF9;
-        buf[2] = 0x00;
+        buf[2] = motor;
         buf[3] = 0x00;
         buf[4] = 0x77;
         buf[5] = (speed >> 8) & 0XFF;
@@ -166,7 +217,7 @@ namespace mintspark {
     //% block="Set motor %motor to absolute angle %angle° direction %turnmode"
     //% color=#a3a3c2
     //% targetAngle.min=0  targetAngle.max=359
-    export function goToAbsolutePosition(motor: NezhaV2MotorPostion, targetAngle: number, turnMode:ServoMotionMode): void {
+    export function goToAbsolutePosition(motor: NezhaV2MotorPostion, targetAngle: number, turnMode: ServoMovementMode): void {
         while (targetAngle < 0) {
             targetAngle += 360
         }
@@ -184,7 +235,7 @@ namespace mintspark {
         pins.i2cWriteBuffer(i2cAddr, buf);
         
         basic.pause(100);
-        let maxTime = getMotorDelay(100, 1, NezhaV2SportsMode.Circle);
+        let maxTime = getMotorDelay(100, 1, MotorMovementMode.Turns);
         let startTime = input.runningTime();
 
         while (readServoAbsoluteSpeed(motor) > 0 && (input.runningTime() - startTime) < maxTime)
@@ -205,9 +256,9 @@ namespace mintspark {
     /*
      * Tank Mode Functions
      */
-    let tankMotorLeft: NezhaV2MotorPostion = NezhaV2MotorPostion.M4;
+    let tankMotorLeft: MotorConnector = MotorConnector.M4;
     let tankMotorLeftReversed: boolean = true;
-    let tankMotorRight: NezhaV2MotorPostion = NezhaV2MotorPostion.M1;
+    let tankMotorRight: MotorConnector = MotorConnector.M1;
     let tankMotorRightReversed: boolean = false;
     let tankSpeed = 30;
     let wheelCircumferenceMm = 36 * Math.PI;
@@ -227,7 +278,7 @@ namespace mintspark {
     //% reverse.defl=false
     //% reverse.shadow="toggleYesNo"
     //% color=#E63022
-    export function setTankMotorRight(motor: NezhaV2MotorPostion, reverse: boolean): void {
+    export function setTankMotorRight(motor: MotorConnector, reverse: boolean): void {
         tankMotorRight = motor;
         tankMotorRightReversed = reverse;
     }
@@ -240,7 +291,7 @@ namespace mintspark {
     //% reverse.defl=true
     //% reverse.shadow="toggleYesNo"
     //% color=#E63022
-    export function setTankMotorLeft(motor: NezhaV2MotorPostion, reverse: boolean): void {
+    export function setTankMotorLeft(motor: MotorConnector, reverse: boolean): void {
         tankMotorLeft = motor;
         tankMotorLeftReversed = reverse;
     }
@@ -307,7 +358,7 @@ namespace mintspark {
     //% subcategory="Robot Tank Mode"
     //% group="Movement"
     //% color=#E63022
-    export function driveTankFor(direction: LinearDirection, value: number, mode: NezhaV2SportsMode, wait?: boolean): void {
+    export function driveTankFor(direction: LinearDirection, value: number, mode: MotorMovementMode, wait?: boolean): void {
         let speed = (direction == LinearDirection.Forward) ? tankSpeed : -tankSpeed;
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
