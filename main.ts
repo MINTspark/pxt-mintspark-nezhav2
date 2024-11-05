@@ -124,7 +124,7 @@ namespace mintspark {
     //% speed.min=-100 speed.max=100 speed.defl=30
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
-    //% color=#E63022
+    //% color=#0f8c1c
     export function runMotor(motor: MotorConnector, speed: number): void {
         speed = restrictSpeed(speed);
 
@@ -153,7 +153,7 @@ namespace mintspark {
     //% wait.defl=true
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
-    //% color=#E63022
+    //% color=#0f8c1c
     export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean): void {
         setServoSpeed(motor, Math.abs(speed));
 
@@ -220,7 +220,7 @@ namespace mintspark {
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
     //%block="%motor speed (rpm)"
-    //% color=#E63022
+    //% color=#0f8c1c
     export function readServoAbsoluteSpeed(motor: MotorConnector): number {
         let buf = pins.createBuffer(8)
         buf[0] = 0xFF;
@@ -251,7 +251,7 @@ namespace mintspark {
     //% subcategory="Motor / Servo"
     //% group="Servo Functions"
     //% block="Turn motor %motor to absolute angle %angle° move %turnmode"
-    //% color=#a3a3c2
+    //% color=#5285bf
     //% targetAngle.min=0  targetAngle.max=359
     export function goToAbsolutePosition(motor: MotorConnector, targetAngle: number, turnMode: ServoMovementMode): void {
         while (targetAngle < 0) {
@@ -278,7 +278,7 @@ namespace mintspark {
     //% subcategory="Motor / Servo"
     //% group="Servo Functions"
     //%block="%motor absolute angular position"
-    //% color=#a3a3c2
+    //% color=#5285bf
     export function readServoAbsolutePostion(motor: MotorConnector): number {
         let buf = pins.createBuffer(8);
         buf[0] = 0xFF;
@@ -316,7 +316,7 @@ namespace mintspark {
     //% motor.defl=MotorConnector.M1
     //% reverse.defl=false
     //% reverse.shadow="toggleYesNo"
-    //% color=#E63022
+    //% color=#6c7075
     export function setTankMotorRight(motor: MotorConnector, reverse: boolean): void {
         tankMotorRight = motor;
         tankMotorRightReversed = reverse;
@@ -329,7 +329,7 @@ namespace mintspark {
     //% motor.defl=MotorConnector.M2
     //% reverse.defl=true
     //% reverse.shadow="toggleYesNo"
-    //% color=#E63022
+    //% color=#6c7075
     export function setTankMotorLeft(motor: MotorConnector, reverse: boolean): void {
         tankMotorLeft = motor;
         tankMotorLeftReversed = reverse;
@@ -339,7 +339,7 @@ namespace mintspark {
     //% block="Set wheel diameter to %diameter %unit"
     //% subcategory="Robot Tank Drive"
     //% group="Setup"
-    //% color=#E63022
+    //% color=#6c7075
     export function setTankWheelDiameter(diameter: number, unit: DistanceUnint): void {
         let wheelCircumferenceMm = diameter * Math.PI * 10;
 
@@ -355,7 +355,7 @@ namespace mintspark {
     //% block="Set wheelbase distance to %diameter %unit"
     //% subcategory="Robot Tank Drive"
     //% group="Setup"
-    //% color=#E63022
+    //% color=#6c7075
     export function setTankWheelbase(distance: number, unit: DistanceUnint): void {
         let wheelBaseDiameterMm = distance * Math.PI * 10;
 
@@ -367,31 +367,7 @@ namespace mintspark {
         wheelBaseSpotTurnMmPerDegree = wheelBaseDiameterMm / 360.0;
     }
 
-    //% weight=85
-    //% block="Set speed to %speed"
-    //% subcategory="Robot Tank Drive"
-    //% group="Setup"
-    //% color=#E63022
-    //% speed.min=1 speed.max=100 speed.defl=30
-    //function setTankSpeed(speed: number): void {
-        //tankSpeed = speed;
-    //}
-
-    //% weight=100
-    //% block="Drive %direction speed %speed"
-    //% subcategory="Robot Tank Drive"
-    //% group="Movement"
-    //% speed.min=1 speed.max=100 speed.defl=30
-    //% color=#E63022
-    export function driveTank(direction: LinearDirection, speed: number): void {
-        speed = (direction == LinearDirection.Forward) ? speed : -speed;
-        let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
-        let tmRSpeed = tankMotorRightReversed ? -speed : speed;
-        runMotor(tankMotorLeft, tmLSpeed);
-        runMotor(tankMotorRight, tmRSpeed);
-    }
-
-    //% weight=95
+    //% weight=105
     //% block="Stop movement"
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
@@ -401,16 +377,16 @@ namespace mintspark {
         stopMotor(tankMotorRight);
     }
 
-    //% weight=90
-    //% block="Drive left motor %speedLeft\\% right motor %speedRight\\%"
+    //% weight=100
+    //% block="Drive %direction speed %speed"
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
-    //% speedLeft.min=-100 speedLeft.max=100
-    //% speedRight.min=-100 speedRight.max=100
-    //% color=#E63022
-    export function driveTankDualSpeed(speedLeft: number, speedRight: number): void {
-        let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
-        let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
+    //% speed.min=1 speed.max=100 speed.defl=30
+    //% color=#0f8c1c
+    export function driveTank(direction: LinearDirection, speed: number): void {
+        speed = (direction == LinearDirection.Forward) ? speed : -speed;
+        let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
+        let tmRSpeed = tankMotorRightReversed ? -speed : speed;
         runMotor(tankMotorLeft, tmLSpeed);
         runMotor(tankMotorRight, tmRSpeed);
     }
@@ -419,7 +395,7 @@ namespace mintspark {
     //% block="Drive %direction speed %speed for %value %mode"
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
-    //% color=#E63022
+    //% color=#0f8c1c
     //% speedLeft.min=1 speedLeft.max=100 speed.defl=30
     //% inlineInputMode=inline
     export function driveTankFor(direction: LinearDirection, speed: number, value: number, mode: MotorMovementMode): void {
@@ -435,7 +411,7 @@ namespace mintspark {
     //% block="Drive %direction speed %speed for %distance %unit"
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
-    //% color=#E63022
+    //% color=#0f8c1c
     //% speed.min=1 speed.max=100 speed.defl=30
     //% inlineInputMode=inline
     export function driveTankForDistance(direction: LinearDirection, speed: number, distance: number, unit: DistanceUnint): void {
@@ -452,10 +428,10 @@ namespace mintspark {
     }
 
     //% weight=75
-    //% block="Turn %direction speed %speed for %degrees %unit"
+    //% block="Turn %direction speed %speed for %degrees degrees"
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
-    //% color=#E63022
+    //% color=#5285bf
     //% speed.min=1 speed.max=100 speed.defl=30
     //% inlineInputMode=inline
     export function spotTurnTankForDegrees(direction: TurnDirection, speed: number, degrees: number): void {
@@ -469,6 +445,20 @@ namespace mintspark {
 
         runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
         runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
+    }
+
+    //% weight=70
+    //% block="Drive left motor %speedLeft\\% right motor %speedRight\\%"
+    //% subcategory="Robot Tank Drive"
+    //% group="Movement"
+    //% speedLeft.min=-100 speedLeft.max=100
+    //% speedRight.min=-100 speedRight.max=100
+    //% color=#5285bf
+    export function driveTankDualSpeed(speedLeft: number, speedRight: number): void {
+        let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
+        let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
+        runMotor(tankMotorLeft, tmLSpeed);
+        runMotor(tankMotorRight, tmRSpeed);
     }
 
     //% weight=100
