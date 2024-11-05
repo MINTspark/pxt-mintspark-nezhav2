@@ -1,22 +1,28 @@
 
-> Diese Seite bei [https://mpoelzl.github.io/pxt-mintspark-ik/](https://mpoelzl.github.io/pxt-mintspark-ik/) öffnen
+> Diese Seite bei [https://mpoelzl.github.io/pxt-mintspark-ik/](https://mpoelzl.github.io/pxt-mintspark-nezhav2/) öffnen
 
-## Als Erweiterung verwenden
+## NeZha V2
 
-Dieses Repository kann als **Erweiterung** in MakeCode hinzugefügt werden.
+![NeZha V2 Expansion Board](nezha_v2.png)
 
-* öffne [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* klicke auf **Neues Projekt**
-* klicke auf **Erweiterungen** unter dem Zahnrad-Menü
-* nach **https://github.com/mpoelzl/pxt-mintspark-ik** suchen und importieren
+The NeZha V2 Expansion Pack is tailored for the micro:bit, aimed at stimulating students' innovative thinking and practical skills. This guide facilitates programming and control of the NeZha V2 Expansion Board, enabling functions such as motor control and sensor integration. To purchase the NeZha V2, visit the [Elecfreaks Official Store](https://shop.elecfreaks.com/products/nezha-breakout-board-v2).
 
-## Dieses Projekt bearbeiten
+### Installing this Extension
 
-Um dieses Repository in MakeCode zu bearbeiten.
+1. Launch MakeCode editor and click the "Extensions" icon.
+2. Search for "NeZha V2" or paste the link "[https://github.com/elecfreaks/pxt-nezha2](https://github.com/mpoelzl/pxt-mintspark-nezhav2/)" to download and install the extension.
 
-* öffne [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* klicke auf **Importieren** und dann auf **Importiere URL**
-* füge **https://github.com/mpoelzl/pxt-mintspark-ik** ein und klicke auf Importieren
+## Instructions
+
+For detailed examples and instructions, visit our [online tutorials](https://wiki.elecfreaks.com/en/microbit/expansion-board/nezha-v2/).
+
+## Supported Targets
+
+- PXT/micro:bit
+
+## License
+
+This extension is licensed under the MIT License.
 
 #### Metadaten (verwendet für Suche, Rendering)
 
