@@ -31,6 +31,15 @@ namespace mintspark {
         Seconds = 3
     }
 
+    export enum TankMovementMode {
+        //%block="turns"
+        Turns = 1,
+        //%block="degrees"
+        Degrees = 2,
+        //%block="seconds"
+        Seconds = 3
+    }
+
     export enum MotorRotationDirection {
         //%block="clockwise"
         CW = 1,
@@ -114,8 +123,7 @@ namespace mintspark {
     //% block="Run motor %motor at speed %speed\\%"
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
-    //% speed.defl = 30
-    //% speed.min=-100 speed.max=100
+    //% speed.min=-100 speed.max=100 speed.defl=30
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#E63022
@@ -143,9 +151,8 @@ namespace mintspark {
     //% block="Run motor %motor at speed %speed for %value %mode || wait %wait"
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
-    //% speed.min=-100 speed.max=100
-    //% speed.defl = 30
-    //% wait.defl = true
+    //% speed.min=-100 speed.max=100 speed.defl=30
+    //% wait.defl=true
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#E63022
@@ -358,8 +365,7 @@ namespace mintspark {
     //% subcategory="Robot Tank Mode"
     //% group="Setup"
     //% color=#E63022
-    //% speed.min=1 speed.max=100
-    //% speed.defl=30
+    //% speed.min=1 speed.max=100 speed.defl=30
     function setTankSpeed(speed: number): void {
         tankSpeed = speed;
     }
@@ -368,8 +374,7 @@ namespace mintspark {
     //% block="Drive %direction speed %speed"
     //% subcategory="Robot Tank Mode"
     //% group="Movement"
-    //% speed.min=1 speed.max=100
-    //% speed.defl = 30
+    //% speed.min=1 speed.max=100 speed.defl=30
     //% color=#E63022
     export function driveTank(direction: LinearDirection, speed: number): void {
         speed = (direction == LinearDirection.Forward) ? speed : -speed;
@@ -418,4 +423,24 @@ namespace mintspark {
         runMotorFor(tankMotorRight, tmRSpeed, value, mode, true);
     }
 
+    //% weight=100
+    //% block="NezhaV2 Block Firmware Version"
+    //% subcategory="Maintenance"
+    //% group="Maintenance"
+    //% color=#E63022
+    //% weight=320
+    export function readVersion(): string {
+        let buf = pins.createBuffer(8);
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = 0x00;
+        buf[3] = 0x00;
+        buf[4] = 0x88;
+        buf[5] = 0x00;
+        buf[6] = 0x00;
+        buf[7] = 0x00;
+        pins.i2cWriteBuffer(i2cAddr, buf);
+        let version = pins.i2cReadBuffer(i2cAddr, 3);
+        return `V ${version[0]}.${version[1]}.${version[2]}`;
+    }
 }
