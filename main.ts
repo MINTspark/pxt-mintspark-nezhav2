@@ -486,6 +486,9 @@ namespace mintspark {
         while (input.runningTime() - startTime < timeMs) {
             basic.pause(100);
         }
+
+        runMotor(tankMotorLeft, 0);
+        runMotor(tankMotorRight, 0);
     }
 
     //% weight=100
