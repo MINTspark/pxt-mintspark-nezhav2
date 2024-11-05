@@ -160,7 +160,7 @@ namespace mintspark {
     //% wait.defl=MotorContinuationMode.Wait
     //% inlineInputMode=inline
     //% color=#0f8c1c
-    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait: MotorContinuationMode): void {
+    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: MotorContinuationMode): void {
         setServoSpeed(motor, Math.abs(speed));
 
         let direction: MotorRotationDirection = MotorRotationDirection.CW;
