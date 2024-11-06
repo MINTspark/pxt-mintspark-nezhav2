@@ -450,7 +450,7 @@ namespace ms_nezhaV2 {
     }
 
     /**
-     * Drive the tank drive robot forward or backward at the set speed for the set amount of wheel turns, wheel degrees or seconds.
+     * Drives the tank drive robot forward or backward at the set speed for the set amount of wheel turns, wheel degrees or seconds.
      */
     //% weight=85
     //% block="Drive %direction speed %speed for %value %mode"
@@ -469,7 +469,7 @@ namespace ms_nezhaV2 {
     }
 
     /**
-     * Drive the tank drive robot forward or backward at the set speed for the set amount of centimeters or inches.
+     * Drives the tank drive robot forward or backward at the set speed for the set amount of centimeters or inches.
      * The wheel diameter must be set before this block is used!
      */
     //% weight=80
@@ -493,7 +493,7 @@ namespace ms_nezhaV2 {
     }
 
     /**
-     * Spot turn the tank drive robot left or right for the set amount of degrees.
+     * Spot turns the tank drive robot left or right for the set amount of degrees.
      * The wheelbase distance must be set before this block is used!
      * The wheelbase distance is used to calculate the spot turn. If you find that the spot turn is not accurate then adjust the wheelbase value to fine tune.
      */
@@ -518,7 +518,7 @@ namespace ms_nezhaV2 {
     }
 
     /**
-     * Start to drive the tank drive robot with independent speeds for each motor.
+     * Starts to drive the tank drive robot with independent speeds for each motor.
      * By setting different speeds, the robot can carry out turns of different radii.
      */
     //% weight=70
@@ -536,7 +536,7 @@ namespace ms_nezhaV2 {
     }
 
     /**
-     * Drive the tank drive robot with independent speeds for each motor for the set amount of seconds.
+     * Drives the tank drive robot with independent speeds for each motor for the set amount of seconds.
      * By setting different speeds, the robot can carry out turns of different radii.
      */
     //% weight=65
