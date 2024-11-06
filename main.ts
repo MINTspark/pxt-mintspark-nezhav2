@@ -1,72 +1,72 @@
+enum DistanceUnint {
+    //%block="cm"
+    Cm = 1,
+    //%block="inch"
+    Inch = 2
+}
+
+enum MotorContinuationMode {
+    //%block="yes"
+    Wait = 1,
+    //%block="no"
+    Continue = 2
+}
+
+enum MotorConnector {
+    //%block="M1"
+    M1 = 1,
+    //%block="M2"
+    M2 = 2,
+    //%block="M3"
+    M3 = 3,
+    //%block="M4"
+    M4 = 4
+}
+
+enum MotorMovementMode {
+    //%block="turns"
+    Turns = 1,
+    //%block="degrees"
+    Degrees = 2,
+    //%block="seconds"
+    Seconds = 3
+}
+
+enum MotorRotationDirection {
+    //%block="clockwise"
+    CW = 1,
+    //%block="counterclockwise"
+    CCW = 2
+}
+
+enum ServoMovementMode {
+    //%block="shortest path"
+    ShortPath = 1,
+    //%block="clockwise"
+    CW = 2,
+    //%block="counterclockwise"
+    CCW = 3
+}
+
+enum LinearDirection {
+    //%block="forward"
+    Forward = 1,
+    //%block="backward"
+    Backward = 2
+}
+
+enum TurnDirection {
+    //% block="left"
+    Left,
+    //% block="right"
+    Right
+}
+
 //% weight=100 color=#DC22E1 block="MINTspark Nezha V2" blockId="MINTspark Nezha V2" icon="\uf0e7"
-namespace mintspark {
+namespace ms_nezhaV2 {
     /*
      * NeZha V2
      */
-
-    export enum DistanceUnint {
-        //%block="cm"
-        Cm = 1,
-        //%block="inch"
-        Inch = 2
-    }
-
-    export enum MotorContinuationMode {
-        //%block="yes"
-        Wait = 1,
-        //%block="no"
-        Continue = 2
-    }
-
-    export enum MotorConnector {
-        //%block="M1"
-        M1 = 1,
-        //%block="M2"
-        M2 = 2,
-        //%block="M3"
-        M3 = 3,
-        //%block="M4"
-        M4 = 4
-    }
-
-    export enum MotorMovementMode {
-        //%block="turns"
-        Turns = 1,
-        //%block="degrees"
-        Degrees = 2,
-        //%block="seconds"
-        Seconds = 3
-    }
-
-    export enum MotorRotationDirection {
-        //%block="clockwise"
-        CW = 1,
-        //%block="counterclockwise"
-        CCW = 2
-    }
-
-    export enum ServoMovementMode {
-        //%block="shortest path"
-        ShortPath = 1,
-        //%block="clockwise"
-        CW = 2,
-        //%block="counterclockwise"
-        CCW = 3
-    }
-
-    export enum LinearDirection {
-        //%block="forward"
-        Forward = 1,
-        //%block="backward"
-        Backward = 2
-    }
-
-    export enum TurnDirection {
-        //% block="left"
-        Left,
-        //% block="right"
-        Right
-    }
 
     let i2cAddr: number = 0x10;
 
@@ -124,6 +124,9 @@ namespace mintspark {
         return 0;
     }
 
+    /**
+     * Runs the selected motor at a certain speed.
+     */
     //% weight=110
     //% block="Run motor %motor at speed %speed\\%"
     //% subcategory="Motor / Servo"
@@ -153,6 +156,9 @@ namespace mintspark {
         pins.i2cWriteBuffer(i2cAddr, buf);
     }
     
+    /**
+     * Runs the selected motor at a certain speed for a the set amount of rotations, degrees or seconds.
+     */
     //% weight=100
     //% block="Run motor %motor at speed %speed for %value %mode || wait complete %wait"
     //% subcategory="Motor / Servo"
@@ -189,6 +195,9 @@ namespace mintspark {
         }
     }
 
+    /**
+     * Reads the current speed of the selected motor in revolutions per minute (rpm).
+     */
     //% weight=98
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
@@ -211,6 +220,9 @@ namespace mintspark {
         return Math.floor(Servo1Speed * 0.17);
     }
 
+    /**
+     * Stops the selected motor.
+     */
     //% weight=95
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
@@ -220,6 +232,9 @@ namespace mintspark {
         runMotor(motor, 0);
     }
 
+    /**
+     * Stops all motors.
+     */
     //% weight=90
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
@@ -255,6 +270,11 @@ namespace mintspark {
         }
     }
 
+    /**
+     * Moves the selected motor to the selected angle (in a range of 0 to 359).
+     * Required rotation can be selected to move clockwise, counterclockwise or fastest route.
+     * The 0 angle position of the motor is the position the motor is in when the Nezha V2 Block is switched on or when the motor is connected.
+     */
     //% weight=80
     //% subcategory="Motor / Servo"
     //% group="Servo Functions"
@@ -282,6 +302,10 @@ namespace mintspark {
         waitForMotorMovementComplete(motor, maxTime);
     }
 
+    /**
+     * Reads the angle the motor is currently at (range 0 to 359).
+     * The 0 angle position of the motor is the position the motor is in when the Nezha V2 Block is switched on or when the motor is connected.
+     */
     //% weight=50
     //% subcategory="Motor / Servo"
     //% group="Servo Functions"
@@ -317,6 +341,11 @@ namespace mintspark {
     let wheelLinearDegreePerMm = 360.0 / (36 * Math.PI);
     let wheelBaseSpotTurnMmPerDegree = 75 * Math.PI / 360.0;
 
+    /**
+     * Sets the tank drive robot's right drive motor to the selected motor.
+     * Depending on how the motor block is fixed to the robot body it might be necessary to reverse the motor to ensure that the motor works in the correct sense.
+     * Tank drive is a robot configuration where driving and steering is achieved by varying the speed of two motors parallel mounted motors. Typically in this design there is an additional caster or omni wheel which can move freely in all direction.
+     */
     //% weight=100
     //% block="Set robot motor right to %motor reverse %reverse"
     //% subcategory="Robot Tank Drive"
@@ -330,6 +359,11 @@ namespace mintspark {
         tankMotorRightReversed = reverse;
     }
 
+    /**
+     * Sets the tank drive robot's left drive motor to the selected motor.
+     * Depending on how the motor block is fixed to the robot body it might be necessary to reverse the motor to ensure that the motor works in the correct sense.
+     * Tank drive is a robot configuration where driving and steering is achieved by varying the speed of two motors parallel mounted motors. Typically in this design there is an additional caster or omni wheel which can move freely in all direction.
+     */
     //% weight=95
     //% block="Set robot motor left to %motor reverse %reverse"
     //% subcategory="Robot Tank Drive"
@@ -343,6 +377,11 @@ namespace mintspark {
         tankMotorLeftReversed = reverse;
     }
 
+    /**
+     * Sets the tank drive robot's wheel diameter. Can be entered in cm or inch by selecting the required unit.
+     * The wheel diameter is used to calculate how far a robot wheel has travelled.
+     * This value MUST be set before using the "Drive forward speed xxx for xx cm" block!
+     */
     //% weight=90
     //% block="Set wheel diameter to %diameter %unit"
     //% subcategory="Robot Tank Drive"
@@ -359,6 +398,11 @@ namespace mintspark {
         wheelLinearDegreePerMm = 360.0 / wheelCircumferenceMm;
     } 
 
+    /**
+     * Sets the tank drive robot's wheelbase distance i.e. how far apart the two driving wheels are. Can be entered in cm or inch by selecting the required unit.
+     * The wheelbase distance is used to calculate the required distances each wheel has to tavel for spot turns. If you find that the spot turn block is not accurate then adjust this value to fine tune.
+     * This value MUST be set before using the "Spot turn left speed xxx for xx degrees" block!
+     */
     //% weight=85
     //% block="Set wheelbase distance to %diameter %unit"
     //% subcategory="Robot Tank Drive"
@@ -375,6 +419,9 @@ namespace mintspark {
         wheelBaseSpotTurnMmPerDegree = wheelBaseDiameterMm / 360.0;
     }
 
+    /**
+     * Stops the tank drive robot's movement.
+     */
     //% weight=105
     //% block="Stop movement"
     //% subcategory="Robot Tank Drive"
@@ -385,6 +432,9 @@ namespace mintspark {
         stopMotor(tankMotorRight);
     }
 
+    /**
+     * Starts to drive the tank drive robot forward or backward at the set speed.
+     */
     //% weight=100
     //% block="Drive %direction speed %speed"
     //% subcategory="Robot Tank Drive"
@@ -399,6 +449,9 @@ namespace mintspark {
         runMotor(tankMotorRight, tmRSpeed);
     }
 
+    /**
+     * Drive the tank drive robot forward or backward at the set speed for the set amount of wheel turns, wheel degrees or seconds.
+     */
     //% weight=85
     //% block="Drive %direction speed %speed for %value %mode"
     //% subcategory="Robot Tank Drive"
@@ -415,6 +468,10 @@ namespace mintspark {
         runMotorFor(tankMotorRight, tmRSpeed, value, mode, true);
     }
 
+    /**
+     * Drive the tank drive robot forward or backward at the set speed for the set amount of centimeters or inches.
+     * The wheel diameter must be set before this block is used!
+     */
     //% weight=80
     //% block="Drive %direction speed %speed for %distance %unit"
     //% subcategory="Robot Tank Drive"
@@ -435,8 +492,13 @@ namespace mintspark {
         runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
     }
 
+    /**
+     * Spot turn the tank drive robot left or right for the set amount of degrees.
+     * The wheelbase distance must be set before this block is used!
+     * The wheelbase distance is used to calculate the spot turn. If you find that the spot turn is not accurate then adjust the wheelbase value to fine tune.
+     */
     //% weight=75
-    //% block="Turn %direction speed %speed for %degrees degrees"
+    //% block="Spot turn %direction speed %speed for %degrees degrees"
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% color=#5285bf
@@ -455,6 +517,10 @@ namespace mintspark {
         runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
     }
 
+    /**
+     * Start to drive the tank drive robot with independent speeds for each motor.
+     * By setting different speeds, the robot can carry out turns of different radii.
+     */
     //% weight=70
     //% block="Drive left motor %speedLeft\\% right motor %speedRight\\%"
     //% subcategory="Robot Tank Drive"
@@ -469,6 +535,10 @@ namespace mintspark {
         runMotor(tankMotorRight, tmRSpeed);
     }
 
+    /**
+     * Drive the tank drive robot with independent speeds for each motor for the set amount of seconds.
+     * By setting different speeds, the robot can carry out turns of different radii.
+     */
     //% weight=65
     //% block="Drive left motor %speedLeft\\% right motor %speedRight\\% for %seconds seconds"
     //% subcategory="Robot Tank Drive"
@@ -492,6 +562,9 @@ namespace mintspark {
         runMotor(tankMotorRight, 0);
     }
 
+    /**
+     * Reads the current firmware version of the connected Nezha V2 block. Ensure that the Nezha block is fully initialised before using this block.
+     */
     //% weight=100
     //% block="NezhaV2 Block Firmware Version"
     //% subcategory="Maintenance"
