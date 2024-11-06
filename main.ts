@@ -132,6 +132,7 @@ namespace mintspark {
     //% expandableArgumentMode="toggle"
     //% inlineInputMode=inline
     //% color=#0f8c1c
+    //% help=github:pxt-mintspark-nezhav2/README
     export function runMotor(motor: MotorConnector, speed: number): void {
         speed = restrictSpeed(speed);
 
