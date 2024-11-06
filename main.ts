@@ -170,6 +170,7 @@ namespace ms_nezhaV2 {
     //% wait.shadow="toggleYesNo"
     //% inlineInputMode=inline
     //% color=#0f8c1c
+    //% help=github:pxt-mintspark-nezhav2/README
     export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean): void {
         setServoSpeed(motor, Math.abs(speed));
 
@@ -205,6 +206,7 @@ namespace ms_nezhaV2 {
     //% group="Motor Functions"
     //%block="%motor speed (rpm)"
     //% color=#0f8c1c
+    //% help=github:pxt-mintspark-nezhav2/README
     export function readServoAbsoluteSpeed(motor: MotorConnector): number {
         let buf = pins.createBuffer(8)
         buf[0] = 0xFF;
@@ -230,6 +232,7 @@ namespace ms_nezhaV2 {
     //% group="Motor Functions"
     //% block="Stop motor %motor"
     //% color=#E63022
+    //% help=github:pxt-mintspark-nezhav2/README
     export function stopMotor(motor: MotorConnector): void {
         runMotor(motor, 0);
     }
@@ -242,6 +245,7 @@ namespace ms_nezhaV2 {
     //% group="Motor Functions"
     //% block="Stop all motors"
     //% color=#E63022
+    //% help=github:pxt-mintspark-nezhav2/README
     export function stopAllMotor(): void {
         runMotor(MotorConnector.M1, 0);
         runMotor(MotorConnector.M2, 0);
@@ -283,6 +287,7 @@ namespace ms_nezhaV2 {
     //% block="Turn motor %motor to absolute angle %angle° move %turnmode"
     //% color=#5285bf
     //% targetAngle.min=0  targetAngle.max=359
+    //% help=github:pxt-mintspark-nezhav2/README
     export function goToAbsolutePosition(motor: MotorConnector, targetAngle: number, turnMode: ServoMovementMode): void {
         while (targetAngle < 0) {
             targetAngle += 360
@@ -313,6 +318,7 @@ namespace ms_nezhaV2 {
     //% group="Servo Functions"
     //%block="%motor absolute angular position"
     //% color=#5285bf
+    //% help=github:pxt-mintspark-nezhav2/README
     export function readServoAbsolutePostion(motor: MotorConnector): number {
         let buf = pins.createBuffer(8);
         buf[0] = 0xFF;
@@ -356,6 +362,7 @@ namespace ms_nezhaV2 {
     //% reverse.defl=false
     //% reverse.shadow="toggleYesNo"
     //% color=#6c7075
+    //% help=github:pxt-mintspark-nezhav2/README
     export function setTankMotorRight(motor: MotorConnector, reverse: boolean): void {
         tankMotorRight = motor;
         tankMotorRightReversed = reverse;
@@ -374,6 +381,7 @@ namespace ms_nezhaV2 {
     //% reverse.defl=true
     //% reverse.shadow="toggleYesNo"
     //% color=#6c7075
+    //% help=github:pxt-mintspark-nezhav2/README
     export function setTankMotorLeft(motor: MotorConnector, reverse: boolean): void {
         tankMotorLeft = motor;
         tankMotorLeftReversed = reverse;
@@ -389,6 +397,7 @@ namespace ms_nezhaV2 {
     //% subcategory="Robot Tank Drive"
     //% group="Setup"
     //% color=#6c7075
+    //% help=github:pxt-mintspark-nezhav2/README
     export function setTankWheelDiameter(diameter: number, unit: DistanceUnint): void {
         let wheelCircumferenceMm = diameter * Math.PI * 10;
 
@@ -410,6 +419,7 @@ namespace ms_nezhaV2 {
     //% subcategory="Robot Tank Drive"
     //% group="Setup"
     //% color=#6c7075
+    //% help=github:pxt-mintspark-nezhav2/README
     export function setTankWheelbase(distance: number, unit: DistanceUnint): void {
         let wheelBaseDiameterMm = distance * Math.PI * 10;
 
@@ -429,6 +439,7 @@ namespace ms_nezhaV2 {
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% color=#E63022
+    //% help=github:pxt-mintspark-nezhav2/README
     export function stopTank(): void {
         stopMotor(tankMotorLeft);
         stopMotor(tankMotorRight);
@@ -443,6 +454,7 @@ namespace ms_nezhaV2 {
     //% group="Movement"
     //% speed.min=1 speed.max=100 speed.defl=30
     //% color=#0f8c1c
+    //% help=github:pxt-mintspark-nezhav2/README
     export function driveTank(direction: LinearDirection, speed: number): void {
         speed = (direction == LinearDirection.Forward) ? speed : -speed;
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
@@ -461,6 +473,7 @@ namespace ms_nezhaV2 {
     //% color=#0f8c1c
     //% speedLeft.min=1 speedLeft.max=100 speed.defl=30
     //% inlineInputMode=inline
+    //% help=github:pxt-mintspark-nezhav2/README
     export function driveTankFor(direction: LinearDirection, speed: number, value: number, mode: MotorMovementMode): void {
         speed = (direction == LinearDirection.Forward) ? speed : -speed;
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
@@ -481,6 +494,7 @@ namespace ms_nezhaV2 {
     //% color=#0f8c1c
     //% speed.min=1 speed.max=100 speed.defl=30
     //% inlineInputMode=inline
+    //% help=github:pxt-mintspark-nezhav2/README
     export function driveTankForDistance(direction: LinearDirection, speed: number, distance: number, unit: DistanceUnint): void {
         speed = (direction == LinearDirection.Forward) ? speed : -speed;
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
@@ -506,6 +520,7 @@ namespace ms_nezhaV2 {
     //% color=#5285bf
     //% speed.min=1 speed.max=100 speed.defl=30
     //% inlineInputMode=inline
+    //% help=github:pxt-mintspark-nezhav2/README
     export function spotTurnTankForDegrees(direction: TurnDirection, speed: number, degrees: number): void {
         speed = (direction == TurnDirection.Left) ? speed : -speed;
         let tmLSpeed = (tankMotorLeftReversed ? -speed : speed) * -1;
@@ -530,6 +545,7 @@ namespace ms_nezhaV2 {
     //% speedLeft.min=-100 speedLeft.max=100
     //% speedRight.min=-100 speedRight.max=100
     //% color=#5285bf
+    //% help=github:pxt-mintspark-nezhav2/README
     export function driveTankDualSpeed(speedLeft: number, speedRight: number): void {
         let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
         let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
@@ -548,6 +564,7 @@ namespace ms_nezhaV2 {
     //% speedLeft.min=-100 speedLeft.max=100
     //% speedRight.min=-100 speedRight.max=100
     //% color=#5285bf
+    //% help=github:pxt-mintspark-nezhav2/README
     export function driveTankDualSpeedForSeconds(speedLeft: number, speedRight: number, seconds: number): void {
         let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
         let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
@@ -573,6 +590,7 @@ namespace ms_nezhaV2 {
     //% group="Maintenance"
     //% color=#E63022
     //% weight=320
+    //% help=github:pxt-mintspark-nezhav2/README
     export function readVersion(): string {
         let buf = pins.createBuffer(8);
         buf[0] = 0xFF;
