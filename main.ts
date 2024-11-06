@@ -158,6 +158,8 @@ namespace ms_nezhaV2 {
     
     /**
      * Runs the selected motor at a certain speed for a the set amount of rotations, degrees or seconds.
+     * By expanding the block the user can also specify if the code should wait until the movement is complete (Yes) or if the code should continue to execute straight away (No).
+     * By default (when the block is not expanded) the code will wait until the movement is completed.
      */
     //% weight=100
     //% block="Run motor %motor at speed %speed for %value %mode || wait complete %wait"
