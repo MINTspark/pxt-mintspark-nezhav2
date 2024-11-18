@@ -378,6 +378,38 @@ namespace ms_nezhaV2 {
     export let wheelLinearDegreePerMm = 360.0 / (36 * Math.PI);
     export let wheelBaseSpotTurnMmPerDegree = 75 * Math.PI / 360.0;
 
+
+    //% weight=110
+    //% block="Set robot motor right to %motor reverse %reverse||Set robot motor right to %motor reverse %reverse||Set wheel diameter to %diameter %unit||Set wheelbase distance to %diameter %unit"
+    //% subcategory="Robot Tank Drive"
+    //% group="Setup"
+    //% motor.defl=MotorConnector.M1
+    //% reverse.defl=false
+    //% reverse.shadow="toggleYesNo"
+    //% color=#6c7075
+    //% help=github:pxt-mintspark-nezhav2/README
+    export function setupTankModeRobot(motorR: MotorConnector, reverseR: boolean, motorL: MotorConnector, reverseL: boolean, wheelDiameter: number, wheelDiameterUnit: DistanceUnint, wheelbase: number, wheelbaseUnit: DistanceUnint): void {
+        // Motor allocation
+        tankMotorRight = motorR;
+        tankMotorRightReversed = reverseR;
+        tankMotorLeft = motorL;
+        tankMotorLeftReversed = reverseL;
+
+        // Set wheel data
+        let wheelCircumferenceMm = wheelDiameter * Math.PI * 10;
+        if (wheelDiameterUnit == DistanceUnint.Inch) {
+            wheelCircumferenceMm = wheelCircumferenceMm * 2.54;
+        }
+        wheelLinearDegreePerMm = 360.0 / wheelCircumferenceMm;
+
+        // Set wheelbase data
+        let wheelBaseDiameterMm = wheelbase * Math.PI * 10;
+        if (wheelbaseUnit == DistanceUnint.Inch) {
+            wheelBaseDiameterMm = wheelBaseDiameterMm * 2.54;
+        }
+        wheelBaseSpotTurnMmPerDegree = wheelBaseDiameterMm / 360.0;
+    }
+
     /**
      * Sets the tank drive robot's right drive motor to the selected motor.
      * Depending on how the motor block is fixed to the robot body it might be necessary to reverse the motor to ensure that the motor works in the correct sense.
@@ -392,7 +424,7 @@ namespace ms_nezhaV2 {
     //% reverse.shadow="toggleYesNo"
     //% color=#6c7075
     //% help=github:pxt-mintspark-nezhav2/README
-    export function setTankMotorRight(motor: MotorConnector, reverse: boolean): void {
+    function setTankMotorRight(motor: MotorConnector, reverse: boolean): void {
         tankMotorRight = motor;
         tankMotorRightReversed = reverse;
     }
@@ -411,7 +443,7 @@ namespace ms_nezhaV2 {
     //% reverse.shadow="toggleYesNo"
     //% color=#6c7075
     //% help=github:pxt-mintspark-nezhav2/README
-    export function setTankMotorLeft(motor: MotorConnector, reverse: boolean): void {
+    function setTankMotorLeft(motor: MotorConnector, reverse: boolean): void {
         tankMotorLeft = motor;
         tankMotorLeftReversed = reverse;
     }
@@ -427,7 +459,7 @@ namespace ms_nezhaV2 {
     //% group="Setup"
     //% color=#6c7075
     //% help=github:pxt-mintspark-nezhav2/README
-    export function setTankWheelDiameter(diameter: number, unit: DistanceUnint): void {
+    function setTankWheelDiameter(diameter: number, unit: DistanceUnint): void {
         let wheelCircumferenceMm = diameter * Math.PI * 10;
 
         if (unit == DistanceUnint.Inch)
@@ -449,7 +481,7 @@ namespace ms_nezhaV2 {
     //% group="Setup"
     //% color=#6c7075
     //% help=github:pxt-mintspark-nezhav2/README
-    export function setTankWheelbase(distance: number, unit: DistanceUnint): void {
+    function setTankWheelbase(distance: number, unit: DistanceUnint): void {
         let wheelBaseDiameterMm = distance * Math.PI * 10;
 
         if (unit == DistanceUnint.Inch) 
@@ -567,26 +599,6 @@ namespace ms_nezhaV2 {
 
         runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
         runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
-    }
-
-    /**
-     * Starts to drive the tank drive robot with independent speeds for each motor.
-     * By setting different speeds, the robot can carry out turns of different radii.
-     */
-    //% weight=70
-    //% block="Drive left motor %speedLeft\\% right motor %speedRight\\%"
-    //% subcategory="Robot Tank Drive"
-    //% group="Movement"
-    //% speedLeft.min=-100 speedLeft.max=100
-    //% speedRight.min=-100 speedRight.max=100
-    //% color=#5285bf
-    //% help=github:pxt-mintspark-nezhav2/README
-    export function driveTankDualSpeed(speedLeft: number, speedRight: number): void {
-        robotTankModeMovementChange = true;
-        let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
-        let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
-        runMotor(tankMotorLeft, tmLSpeed);
-        runMotor(tankMotorRight, tmRSpeed);
     }
 
     /**
