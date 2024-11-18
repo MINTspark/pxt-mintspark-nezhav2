@@ -1,5 +1,6 @@
 {
-    "DistanceUnint.Cm|block": "Links",
+    "DistanceUnint.Cm|block": "Cm",
+    "DistanceUnint.Inch|block": "Zoll",
     "MotorContinuationMode.Wait|block": "Warten",
     "MotorContinuationMode.Continue|block": "Fortfahren",
     "MotorMovementMode.Turns|block": "Umdrehungen",
