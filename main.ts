@@ -623,7 +623,7 @@ namespace ms_nezhaV2 {
      */
     //% weight=100
     //% block="NezhaV2 Block Firmware Version"
-    //% subcategory="Maintenance"
+    //% subcategory="Motor / Servo"
     //% group="Maintenance"
     //% color=#E63022
     //% weight=320
