@@ -624,7 +624,7 @@ namespace ms_nezhaV2 {
     //% weight=100
     //% block="NezhaV2 Block Firmware Version"
     //% subcategory="Motor / Servo"
-    //% group="Maintenance"
+    //% group="Information"
     //% color=#E63022
     //% weight=320
     //% help=github:pxt-mintspark-nezhav2/README
