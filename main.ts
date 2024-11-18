@@ -68,7 +68,7 @@ namespace ms_nezhaV2 {
      * NeZha V2
      */
 
-    export let newMotorMovement = false;
+    export let robotTankModeMovementChange = false;
     let i2cAddr: number = 0x10;
 
     // Restrict Motor speed if required
@@ -470,7 +470,7 @@ namespace ms_nezhaV2 {
     //% color=#E63022
     //% help=github:pxt-mintspark-nezhav2/README
     export function stopTank(): void {
-        newMotorMovement = true;
+        robotTankModeMovementChange = true;
         stopMotor(tankMotorLeft);
         stopMotor(tankMotorRight);
     }
@@ -486,7 +486,7 @@ namespace ms_nezhaV2 {
     //% color=#0f8c1c
     //% help=github:pxt-mintspark-nezhav2/README
     export function driveTank(direction: LinearDirection, speed: number): void {
-        newMotorMovement = true;
+        robotTankModeMovementChange = true;
         speed = (direction == LinearDirection.Forward) ? speed : -speed;
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
@@ -506,7 +506,7 @@ namespace ms_nezhaV2 {
     //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README
     export function driveTankFor(direction: LinearDirection, speed: number, value: number, mode: MotorMovementMode): void {
-        newMotorMovement = true;
+        robotTankModeMovementChange = true;
         speed = (direction == LinearDirection.Forward) ? speed : -speed;
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
@@ -528,7 +528,7 @@ namespace ms_nezhaV2 {
     //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README
     export function driveTankForDistance(direction: LinearDirection, speed: number, distance: number, unit: DistanceUnint): void {
-        newMotorMovement = true;
+        robotTankModeMovementChange = true;
         speed = Math.abs(speed);
         speed = (direction == LinearDirection.Forward) ? speed : -speed;
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
@@ -556,7 +556,7 @@ namespace ms_nezhaV2 {
     //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README
     export function spotTurnTankForDegrees(direction: TurnDirection, speed: number, degrees: number): void {
-        newMotorMovement = true;
+        robotTankModeMovementChange = true;
         speed = (direction == TurnDirection.Left) ? speed : -speed;
         let tmLSpeed = (tankMotorLeftReversed ? -speed : speed) * -1;
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
@@ -582,7 +582,7 @@ namespace ms_nezhaV2 {
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
     export function driveTankDualSpeed(speedLeft: number, speedRight: number): void {
-        newMotorMovement = true;
+        robotTankModeMovementChange = true;
         let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
         let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
         runMotor(tankMotorLeft, tmLSpeed);
@@ -594,20 +594,26 @@ namespace ms_nezhaV2 {
      * By setting different speeds, the robot can carry out turns of different radii.
      */
     //% weight=65
-    //% block="Drive left motor %speedLeft\\% right motor %speedRight\\% for %seconds seconds"
+    //% block="Drive left motor %speedLeft\\% right motor %speedRight\\% || for %seconds seconds"
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% speedLeft.min=-100 speedLeft.max=100
     //% speedRight.min=-100 speedRight.max=100
+    //% inlineInputMode=inline
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
-    export function driveTankDualSpeedForSeconds(speedLeft: number, speedRight: number, seconds: number): void {
-        newMotorMovement = true;
+    export function driveTankDualSpeedForSeconds(speedLeft: number, speedRight: number, seconds?: number): void {
+        robotTankModeMovementChange = true;
         let tmLSpeed = tankMotorLeftReversed ? -speedLeft : speedLeft;
         let tmRSpeed = tankMotorRightReversed ? -speedRight : speedRight;
         let timeMs = seconds * 1000;
         runMotor(tankMotorLeft, tmLSpeed);
         runMotor(tankMotorRight, tmRSpeed);
+
+        if (seconds == null)
+        {
+            return;
+        }
 
         let startTime = input.runningTime();
         while (input.runningTime() - startTime < timeMs) {
