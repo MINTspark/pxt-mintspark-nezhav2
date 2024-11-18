@@ -338,8 +338,8 @@ namespace ms_nezhaV2 {
         pins.i2cWriteBuffer(i2cAddr, buf);
         basic.pause(4);
         let arr = pins.i2cReadBuffer(i2cAddr, 4);
-        let position = 0.1 * ((arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]));
-        return (position % 360 + 360) % 360;
+        let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
+        return ((position % 3600 + 3600) % 3600) * 0.1;
     }
 
     /**
