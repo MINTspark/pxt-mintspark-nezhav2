@@ -339,7 +339,7 @@ namespace ms_nezhaV2 {
         basic.pause(4);
         let arr = pins.i2cReadBuffer(i2cAddr, 4);
         let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
-        return ((position % 3600 + 3600) % 3600) * 0.1;
+        return Math.round(((position % 3600 + 3600) % 3600) * 0.1);
     }
 
     /**
@@ -368,7 +368,7 @@ namespace ms_nezhaV2 {
         basic.pause(4);
         let arr = pins.i2cReadBuffer(i2cAddr, 4);
         let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
-        return position * 0.1;
+        return Math.round(position * 0.1);
     }
 
     /*
