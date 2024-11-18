@@ -9,7 +9,8 @@
     },
     "files": [
         "main.ts",
-        "README.md"
+        "README.md",
+        "_locales/de/pxt-mintspark-nezhav2-strings.json"
     ],
     "testFiles": [
         "test.ts"
