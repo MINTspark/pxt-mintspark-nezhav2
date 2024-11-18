@@ -31,7 +31,9 @@
     "ms_nezhaV2.driveTankFor|block": "Fahre %direction Geschwindigkeit %speed für %value %mode",
     "ms_nezhaV2.driveTankForDistance|block": "Fahre %direction Geschwindigkeit %speed für %distance %unit",
     "ms_nezhaV2.spotTurnTankForDegrees|block": "Punktwende %direction Geschwindigkeit %speed für %degrees Grad",
-
+    "ms_nezhaV2.driveTankDualSpeed|block": "Fahre linker Motor %speedLeft\\% rechter Motor %speedRight\\%",
+    "ms_nezhaV2.driveTankDualSpeedForSeconds|block": "Fahre linker Motor %speedLeft\\% rechter Motor %speedRight\\% für %seconds Sekunden",
+    "ms_nezhaV2.readVersion|block": "NezhaV2 Block Firmware Version",
     "{id:subcategory}Motor / Servo": "Motor / Servo",
     "{id:subcategory}Robot Tank Drive": "Roboter Fahren",
     "{id:group}Motor Functions": "Motor Funktionen",
