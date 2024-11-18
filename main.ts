@@ -338,11 +338,37 @@ namespace ms_nezhaV2 {
         pins.i2cWriteBuffer(i2cAddr, buf);
         basic.pause(4);
         let arr = pins.i2cReadBuffer(i2cAddr, 4);
+        let position = 0.1 * (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
+        return (position % 360 + 360) % 360;
+    }
+
+    /**
+    * Reads a running total of degrees the motor has turned since start
+    * The value is initially 0 when the Nezha V2 Block is switched on or when the motor is connected.
+    * Thereafter every movement forward or back increments or decrements this value.
+    * This can be used to easily caluclate a difference in degrees from one point in time to another
+    */
+    //% weight=45
+    //% subcategory="Motor / Servo"
+    //% group="Servo Functions"
+    //%block="%motor angular position continuous since start"
+    //% color=#5285bf
+    //% help=github:pxt-mintspark-nezhav2/README
+    export function readServoAbsolutePostionContinuous(motor: MotorConnector): number {
+        let buf = pins.createBuffer(8);
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = motor;
+        buf[3] = 0x00;
+        buf[4] = 0x46;
+        buf[5] = 0x00;
+        buf[6] = 0xF5;
+        buf[7] = 0x00;
+        pins.i2cWriteBuffer(i2cAddr, buf);
+        basic.pause(4);
+        let arr = pins.i2cReadBuffer(i2cAddr, 4);
         let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
-        while (position < 0) {
-            position += 3600;
-        }
-        return (position % 3600) * 0.1;
+        return position * 0.1;
     }
 
     /*
