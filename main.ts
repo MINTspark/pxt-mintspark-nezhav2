@@ -63,6 +63,8 @@ enum TurnDirection {
 }
 
 //% weight=100 color=#DC22E1 block="MINTspark Nezha V2" blockId="MINTspark Nezha V2" icon="\uf0e7"
+//% subcategories='["Motor / Servo", "Robot Tank Drive"]'
+//% groups='["Motor Functions", "Servo Functions", "Information", "Setup", "Movement"]'
 namespace ms_nezhaV2 {
     /*
      * NeZha V2
@@ -377,7 +379,6 @@ namespace ms_nezhaV2 {
     export let tankMotorRightReversed: boolean = false;
     export let wheelLinearDegreePerMm = 360.0 / (36 * Math.PI);
     export let wheelBaseSpotTurnMmPerDegree = 75 * Math.PI / 360.0;
-
 
     /**
      * Tank drive is a robot configuration where driving and steering is achieved by varying the speed of two motors parallel mounted motors. Typically in this design there is an additional caster or omni wheel which can move freely in all direction.
