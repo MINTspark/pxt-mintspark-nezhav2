@@ -374,12 +374,12 @@ namespace ms_nezhaV2 {
     /*
      * Tank Mode Functions
      */
-    let tankMotorLeft: MotorConnector = MotorConnector.M4;
+    export let tankMotorLeft: MotorConnector = MotorConnector.M4;
     let tankMotorLeftReversed: boolean = true;
-    let tankMotorRight: MotorConnector = MotorConnector.M1;
+    export let tankMotorRight: MotorConnector = MotorConnector.M1;
     let tankMotorRightReversed: boolean = false;
-    let wheelLinearDegreePerMm = 360.0 / (36 * Math.PI);
-    let wheelBaseSpotTurnMmPerDegree = 75 * Math.PI / 360.0;
+    export let wheelLinearDegreePerMm = 360.0 / (36 * Math.PI);
+    export let wheelBaseSpotTurnMmPerDegree = 75 * Math.PI / 360.0;
 
     /**
      * Sets the tank drive robot's right drive motor to the selected motor.
