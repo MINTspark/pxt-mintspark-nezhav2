@@ -379,16 +379,30 @@ namespace ms_nezhaV2 {
     export let wheelBaseSpotTurnMmPerDegree = 75 * Math.PI / 360.0;
 
 
+    /**
+     * Tank drive is a robot configuration where driving and steering is achieved by varying the speed of two motors parallel mounted motors. Typically in this design there is an additional caster or omni wheel which can move freely in all direction.
+     * Sets the tank drive robot's right and left drive motors to the selected motors.
+     * Depending on how a motor is fixed to the robot body it might be necessary to reverse the motor to ensure that the motor works in the correct sense.
+     * Sets the tank drive robot's wheel diameter. Can be entered in cm or inch by selecting the required unit.
+     * The wheel diameter is used to calculate how far a robot wheel has travelled. This value MUST be set before using the "Drive forward speed xxx for xx cm" block!
+     * Sets the tank drive robot's wheelbase distance i.e. how far apart the two driving wheels are. Can be entered in cm or inch by selecting the required unit.
+     * The wheelbase distance is used to calculate the required distances each wheel has to tavel for spot turns. If you find that the spot turn block is not accurate then adjust this value to fine tune.
+     * This value MUST be set before using the "Spot turn left speed xxx for xx degrees" block!
+     */
     //% weight=110
-    //% block="Set robot motor right to %motor reverse %reverse||Set robot motor right to %motor reverse %reverse||Set wheel diameter to %diameter %unit||Set wheelbase distance to %diameter %unit"
+    //% block="Setup Tank Drive:|Motor right is %motorR|Motor right reversed %reverseR|Motor left is %motorL|Motor left reversed %reverseL|Wheel diameter is %wheelDiameter|Wheelbase distance is %wheelbase|Unit: %unit"
     //% subcategory="Robot Tank Drive"
     //% group="Setup"
-    //% motor.defl=MotorConnector.M1
-    //% reverse.defl=false
-    //% reverse.shadow="toggleYesNo"
+    //% motorR.defl=MotorConnector.M1
+    //% motorL.defl=MotorConnector.M4
+    //% reverseL.defl=true
+    //% reverseL.shadow="toggleYesNo"
+    //% reverseR.defl=false
+    //% reverseR.shadow="toggleYesNo"
     //% color=#6c7075
     //% help=github:pxt-mintspark-nezhav2/README
-    export function setupTankModeRobot(motorR: MotorConnector, reverseR: boolean, motorL: MotorConnector, reverseL: boolean, wheelDiameter: number, wheelDiameterUnit: DistanceUnint, wheelbase: number, wheelbaseUnit: DistanceUnint): void {
+    //% inlineInputMode=external
+    export function setupTankModeRobot(motorR: MotorConnector, reverseR: boolean, motorL: MotorConnector, reverseL: boolean, wheelDiameter: number, wheelbase: number, unit: DistanceUnint): void {
         // Motor allocation
         tankMotorRight = motorR;
         tankMotorRightReversed = reverseR;
@@ -397,98 +411,16 @@ namespace ms_nezhaV2 {
 
         // Set wheel data
         let wheelCircumferenceMm = wheelDiameter * Math.PI * 10;
-        if (wheelDiameterUnit == DistanceUnint.Inch) {
+        if (unit == DistanceUnint.Inch) {
             wheelCircumferenceMm = wheelCircumferenceMm * 2.54;
         }
         wheelLinearDegreePerMm = 360.0 / wheelCircumferenceMm;
 
         // Set wheelbase data
         let wheelBaseDiameterMm = wheelbase * Math.PI * 10;
-        if (wheelbaseUnit == DistanceUnint.Inch) {
+        if (unit == DistanceUnint.Inch) {
             wheelBaseDiameterMm = wheelBaseDiameterMm * 2.54;
         }
-        wheelBaseSpotTurnMmPerDegree = wheelBaseDiameterMm / 360.0;
-    }
-
-    /**
-     * Sets the tank drive robot's right drive motor to the selected motor.
-     * Depending on how the motor block is fixed to the robot body it might be necessary to reverse the motor to ensure that the motor works in the correct sense.
-     * Tank drive is a robot configuration where driving and steering is achieved by varying the speed of two motors parallel mounted motors. Typically in this design there is an additional caster or omni wheel which can move freely in all direction.
-     */
-    //% weight=100
-    //% block="Set robot motor right to %motor reverse %reverse"
-    //% subcategory="Robot Tank Drive"
-    //% group="Setup"
-    //% motor.defl=MotorConnector.M1
-    //% reverse.defl=false
-    //% reverse.shadow="toggleYesNo"
-    //% color=#6c7075
-    //% help=github:pxt-mintspark-nezhav2/README
-    function setTankMotorRight(motor: MotorConnector, reverse: boolean): void {
-        tankMotorRight = motor;
-        tankMotorRightReversed = reverse;
-    }
-
-    /**
-     * Sets the tank drive robot's left drive motor to the selected motor.
-     * Depending on how the motor block is fixed to the robot body it might be necessary to reverse the motor to ensure that the motor works in the correct sense.
-     * Tank drive is a robot configuration where driving and steering is achieved by varying the speed of two motors parallel mounted motors. Typically in this design there is an additional caster or omni wheel which can move freely in all direction.
-     */
-    //% weight=95
-    //% block="Set robot motor left to %motor reverse %reverse"
-    //% subcategory="Robot Tank Drive"
-    //% group="Setup"
-    //% motor.defl=MotorConnector.M2
-    //% reverse.defl=true
-    //% reverse.shadow="toggleYesNo"
-    //% color=#6c7075
-    //% help=github:pxt-mintspark-nezhav2/README
-    function setTankMotorLeft(motor: MotorConnector, reverse: boolean): void {
-        tankMotorLeft = motor;
-        tankMotorLeftReversed = reverse;
-    }
-
-    /**
-     * Sets the tank drive robot's wheel diameter. Can be entered in cm or inch by selecting the required unit.
-     * The wheel diameter is used to calculate how far a robot wheel has travelled.
-     * This value MUST be set before using the "Drive forward speed xxx for xx cm" block!
-     */
-    //% weight=90
-    //% block="Set wheel diameter to %diameter %unit"
-    //% subcategory="Robot Tank Drive"
-    //% group="Setup"
-    //% color=#6c7075
-    //% help=github:pxt-mintspark-nezhav2/README
-    function setTankWheelDiameter(diameter: number, unit: DistanceUnint): void {
-        let wheelCircumferenceMm = diameter * Math.PI * 10;
-
-        if (unit == DistanceUnint.Inch)
-        {
-            wheelCircumferenceMm = wheelCircumferenceMm * 2.54;
-        }
-
-        wheelLinearDegreePerMm = 360.0 / wheelCircumferenceMm;
-    } 
-
-    /**
-     * Sets the tank drive robot's wheelbase distance i.e. how far apart the two driving wheels are. Can be entered in cm or inch by selecting the required unit.
-     * The wheelbase distance is used to calculate the required distances each wheel has to tavel for spot turns. If you find that the spot turn block is not accurate then adjust this value to fine tune.
-     * This value MUST be set before using the "Spot turn left speed xxx for xx degrees" block!
-     */
-    //% weight=85
-    //% block="Set wheelbase distance to %diameter %unit"
-    //% subcategory="Robot Tank Drive"
-    //% group="Setup"
-    //% color=#6c7075
-    //% help=github:pxt-mintspark-nezhav2/README
-    function setTankWheelbase(distance: number, unit: DistanceUnint): void {
-        let wheelBaseDiameterMm = distance * Math.PI * 10;
-
-        if (unit == DistanceUnint.Inch) 
-        {
-            wheelBaseDiameterMm = wheelBaseDiameterMm * 2.54;
-        }
-
         wheelBaseSpotTurnMmPerDegree = wheelBaseDiameterMm / 360.0;
     }
 
