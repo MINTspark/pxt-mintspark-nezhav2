@@ -351,7 +351,7 @@ namespace ms_nezhaV2 {
     //%block="%motor aggregated angular position"
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
-    export function readServoAbsolutePostionContinuous(motor: MotorConnector): number {
+    export function readServoAbsolutePostionAggregate(motor: MotorConnector): number {
         let buf = pins.createBuffer(8);
         buf[0] = 0xFF;
         buf[1] = 0xF9;
