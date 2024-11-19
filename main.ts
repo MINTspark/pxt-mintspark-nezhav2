@@ -393,6 +393,9 @@ namespace ms_nezhaV2 {
     //% reverseL.shadow="toggleYesNo"
     //% reverseR.defl=false
     //% reverseR.shadow="toggleYesNo"
+    //% wheelDiameter.defl=3.6
+    //% wheelbase.defl=10
+    //% unit.defl=DistanceUnint.Cm
     //% color=#6c7075
     //% help=github:pxt-mintspark-nezhav2/README
     //% inlineInputMode=external
@@ -460,10 +463,13 @@ namespace ms_nezhaV2 {
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% color=#0f8c1c
-    //% speedLeft.min=1 speedLeft.max=100 speed.defl=20
+    //% speed.min=1 speed.max=100 speed.defl=20
+    //% value.defl=1
+    //% mode.defl=MotorMovementMode.Turns
     //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README
     export function driveTankFor(direction: LinearDirection, speed: number, value: number, mode: MotorMovementMode): void {
+        value = Math.abs(value);
         robotTankModeMovementChange = true;
         speed = (direction == LinearDirection.Forward) ? speed : -speed;
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
@@ -483,6 +489,8 @@ namespace ms_nezhaV2 {
     //% group="Movement"
     //% color=#0f8c1c
     //% speed.min=1 speed.max=100 speed.defl=20
+    //% distance.defl=10
+    //% unit.defl=DistanceUnint.Cm
     //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README
     export function driveTankForDistance(direction: LinearDirection, speed: number, distance: number, unit: DistanceUnint): void {
@@ -511,6 +519,8 @@ namespace ms_nezhaV2 {
     //% group="Movement"
     //% color=#5285bf
     //% speed.min=1 speed.max=100 speed.defl=20
+    //% degrees.defl=90
+    //% direction.defl=TurnDirection.Left
     //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README
     export function spotTurnTankForDegrees(direction: TurnDirection, speed: number, degrees: number): void {
@@ -535,8 +545,8 @@ namespace ms_nezhaV2 {
     //% block="Drive left motor %speedLeft\\% right motor %speedRight\\% || for %seconds seconds"
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
-    //% speedLeft.min=-100 speedLeft.max=100
-    //% speedRight.min=-100 speedRight.max=100
+    //% speedLeft.min=-100 speedLeft.max=100 speedLeft.defl=20
+    //% speedRight.min=-100 speedRight.max=100 speedRight.defl=20
     //% inlineInputMode=inline
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
