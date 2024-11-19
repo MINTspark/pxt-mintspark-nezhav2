@@ -381,14 +381,7 @@ namespace ms_nezhaV2 {
     export let wheelBaseSpotTurnMmPerDegree = 75 * Math.PI / 360.0;
 
     /**
-     * Tank drive is a robot configuration where driving and steering is achieved by varying the speed of two motors parallel mounted motors. Typically in this design there is an additional caster or omni wheel which can move freely in all direction.
-     * Sets the tank drive robot's right and left drive motors to the selected motors.
-     * Depending on how a motor is fixed to the robot body it might be necessary to reverse the motor to ensure that the motor works in the correct sense.
-     * Sets the tank drive robot's wheel diameter. Can be entered in cm or inch by selecting the required unit.
-     * The wheel diameter is used to calculate how far a robot wheel has travelled. This value MUST be set before using the "Drive forward speed xxx for xx cm" block!
-     * Sets the tank drive robot's wheelbase distance i.e. how far apart the two driving wheels are. Can be entered in cm or inch by selecting the required unit.
-     * The wheelbase distance is used to calculate the required distances each wheel has to tavel for spot turns. If you find that the spot turn block is not accurate then adjust this value to fine tune.
-     * This value MUST be set before using the "Spot turn left speed xxx for xx degrees" block!
+     * Tank drive is a robot configuration where driving and steering is achieved by varying the speed of two parallel mounted motors. Typically in this design there is an additional caster or omni wheel which can move freely in all directions. *** To use the blocks in this section the following parameters must be set: * Right and left drive motors * The wheel diameter of the robot * The wheelbase distance of the robot. *** Depending on how a motor is fixed to the robot body it might be necessary to reverse the motor to ensure that the motor works in the correct sense. *** The wheel diameter is used to calculate how far a robot wheel has travelled. *** The wheelbase distance is used to calculate the required distances each wheel has to tavel for spot turns. If you find that the spot turn block is not accurate then adjust this value to fine tune. *** The wheel diameter and wheelbase distance an be entered in cm or inch by selecting the required unit.
      */
     //% weight=110
     //% block="Setup Tank Drive:|Motor right is %motorR|Motor right reversed %reverseR|Motor left is %motorL|Motor left reversed %reverseL|Wheel diameter is %wheelDiameter|Wheelbase distance is %wheelbase|Unit: %unit"
