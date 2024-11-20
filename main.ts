@@ -69,7 +69,6 @@ namespace ms_nezhaV2 {
     /*
      * NeZha V2
      */
-
     export let robotTankModeMovementChange = false;
     let i2cAddr: number = 0x10;
 
@@ -197,11 +196,16 @@ namespace ms_nezhaV2 {
         buf[7] = (value >> 0) & 0XFF;
         pins.i2cWriteBuffer(i2cAddr, buf);
 
-        if (!(wait == false))
-        {
+        if (!(wait == false)) {
             waitForMotorMovementComplete(motor, getMotorDelay(speed, value, mode) + 100);
         }
     }
+
+    let currentMotorSpeeds: number[] = [];
+    let currentMotorSpeedsLastRead: number[] = [0,0,0,0,0];
+    let currentAggregatedAngle: number[] = [];
+    let currentAggregatedAngleLastRead: number[] = [0, 0, 0, 0, 0];
+    let readMotorValueIntervalMs = 10;
 
     /**
      * Reads the current speed of the selected motor in revolutions per minute (rpm).
@@ -213,6 +217,19 @@ namespace ms_nezhaV2 {
     //% color=#0f8c1c
     //% help=github:pxt-mintspark-nezhav2/README
     export function readServoAbsoluteSpeed(motor: MotorConnector): number {
+        // Only update if last update is stale
+        if (currentMotorSpeedsLastRead[motor] + readMotorValueIntervalMs < input.runningTime())
+        {
+            return readServoAbsoluteSpeedInternal(motor);
+        }
+
+        return currentMotorSpeeds[motor];
+    }
+
+    function readServoAbsoluteSpeedInternal(motor: MotorConnector): number {
+        if (motorReadInProgress) return currentMotorSpeeds[motor];
+
+        motorReadInProgress = true;
         let buf = pins.createBuffer(8)
         buf[0] = 0xFF;
         buf[1] = 0xF9;
@@ -225,8 +242,11 @@ namespace ms_nezhaV2 {
         pins.i2cWriteBuffer(i2cAddr, buf);
         basic.pause(3);
         let ServoSpeed1Arr = pins.i2cReadBuffer(i2cAddr, 2);
+        motorReadInProgress = false;
         let Servo1Speed = (ServoSpeed1Arr[1] << 8) | (ServoSpeed1Arr[0]);
-        return Math.floor(Servo1Speed * 0.17);
+        currentMotorSpeeds[motor] = Math.floor(Servo1Speed * 0.17);
+        currentMotorSpeedsLastRead[motor] = input.runningTime();
+        return currentMotorSpeeds[motor];
     }
 
     /**
@@ -276,7 +296,7 @@ namespace ms_nezhaV2 {
     function waitForMotorMovementComplete(motor: MotorConnector, maxTime: number): void {
         basic.pause(100);
         let startTime = input.runningTime();
-        while (readServoAbsoluteSpeed(motor) > 0 && (input.runningTime() - startTime) < maxTime) {
+        while (readServoAbsoluteSpeedInternal(motor) > 0 && (input.runningTime() - startTime) < maxTime) {
             basic.pause(100);
         }
     }
@@ -294,34 +314,28 @@ namespace ms_nezhaV2 {
     //% speed.min=1 speed.max=100 speed.defl=20
     //% targetAngle.min=0  targetAngle.max=359
     //% inlineInputMode=inline
-    //% help=github:pxt-mintspark-nezhav2/README
+    //% help=github:pxt-mintspark-nezhav2/README 
     export function goToAbsolutePositionFromCode(motor: MotorConnector, speed: number, targetAngle: number, turnMode: ServoMovementMode): void {
-        // Prevent interference with previous movement (can cause absolute position to return 0)
-        stopMotor(motor);
-        waitForMotorMovementComplete(motor, 10000);
-        basic.pause(50);
-
-        let currentPosition = readServoAbsolutePostion(motor);
+        // Calculate required movement in degrees
+        let currentPosition = readServoAbsolutePostionInternal(motor);
         let requiredChange = targetAngle - currentPosition;
         if (Math.abs(requiredChange) <= 2) return;
 
-        let clockwise = requiredChange < 0 ? requiredChange + 360 : requiredChange;
-        let counterclockwise = requiredChange > 0 ? requiredChange - 360 : requiredChange;
-        let degreesToMove = 0;
+        let clockwise = Math.abs(requiredChange < 0 ? requiredChange + 360 : requiredChange);
+        let counterclockwise = Math.abs(requiredChange > 0 ? requiredChange - 360 : requiredChange);
+        let degreesToMove = clockwise;
 
-        switch(turnMode)
+        if (turnMode == ServoMovementMode.ShortPath)
         {
-            case ServoMovementMode.CW:
-                degreesToMove = clockwise;
-                break;
-            case ServoMovementMode.CCW:
-                degreesToMove = counterclockwise;
-                break;
-            case ServoMovementMode.ShortPath:
-                degreesToMove = Math.min(clockwise, counterclockwise);
-                break;
+            turnMode = counterclockwise > clockwise ? ServoMovementMode.CW : ServoMovementMode.CCW;
         }
 
+        if (turnMode == ServoMovementMode.CCW)
+        {
+            degreesToMove = counterclockwise;
+            speed = -Math.abs(speed);
+        }
+        
         runMotorFor(motor, speed, degreesToMove, MotorMovementMode.Degrees, true);
     }
 
@@ -361,20 +375,13 @@ namespace ms_nezhaV2 {
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
     export function readServoAbsolutePostion(motor: MotorConnector): number {
-        let buf = pins.createBuffer(8);
-        buf[0] = 0xFF;
-        buf[1] = 0xF9;
-        buf[2] = motor;
-        buf[3] = 0x00;
-        buf[4] = 0x46;
-        buf[5] = 0x00;
-        buf[6] = 0xF5;
-        buf[7] = 0x00;
-        pins.i2cWriteBuffer(i2cAddr, buf);
-        basic.pause(4);
-        let arr = pins.i2cReadBuffer(i2cAddr, 4);
-        let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
-        return Math.round(((position % 3600 + 3600) % 3600) * 0.1);
+        let aggreggatePosition = readServoAbsolutePostionAggregate(motor);
+        return Math.round((aggreggatePosition % 360 + 360) % 360);
+    }
+
+    function readServoAbsolutePostionInternal(motor: MotorConnector): number {
+        let aggreggatePosition = readServoAbsolutePostionAggregateInternal(motor);
+        return Math.round((aggreggatePosition % 360 + 360) % 360);
     }
 
     /**
@@ -390,6 +397,19 @@ namespace ms_nezhaV2 {
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
     export function readServoAbsolutePostionAggregate(motor: MotorConnector): number {
+        // Only update if last update is stale
+        if (currentAggregatedAngleLastRead[motor] + readMotorValueIntervalMs < input.runningTime()) {
+            return readServoAbsolutePostionAggregateInternal(motor);
+        }
+
+        return currentAggregatedAngle[motor];
+    }
+
+    let motorReadInProgress = false;
+    function readServoAbsolutePostionAggregateInternal(motor: MotorConnector): number {
+        if (motorReadInProgress) return currentAggregatedAngle[motor];
+
+        motorReadInProgress = true;
         let buf = pins.createBuffer(8);
         buf[0] = 0xFF;
         buf[1] = 0xF9;
@@ -402,8 +422,11 @@ namespace ms_nezhaV2 {
         pins.i2cWriteBuffer(i2cAddr, buf);
         basic.pause(4);
         let arr = pins.i2cReadBuffer(i2cAddr, 4);
+        motorReadInProgress = false;
         let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
-        return Math.round(position * 0.1);
+        currentAggregatedAngle[motor] = Math.round(position * 0.1);
+        currentAggregatedAngleLastRead[motor] = input.runningTime();
+        return currentAggregatedAngle[motor];
     }
 
     /*
@@ -511,8 +534,8 @@ namespace ms_nezhaV2 {
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, value, mode, false);
-        runMotorFor(tankMotorRight, tmRSpeed, value, mode, true);
+        runMotorFor(tankMotorLeft, tmLSpeed, value, mode);
+        runMotorFor(tankMotorRight, tmRSpeed, value, mode);
     }
 
     /**
@@ -540,8 +563,8 @@ namespace ms_nezhaV2 {
         let distMm = (unit == DistanceUnint.Cm) ? distance * 10 : distance * 10 * 2.54;
         let requiredDegrees = distMm * wheelLinearDegreePerMm;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
-        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees);
     }
 
     /**
@@ -569,8 +592,8 @@ namespace ms_nezhaV2 {
         let requiredDistanceMm = wheelBaseSpotTurnMmPerDegree * degrees;
         let requiredDegrees = requiredDistanceMm * wheelLinearDegreePerMm;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
-        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees);
     }
 
     /**
