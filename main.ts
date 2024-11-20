@@ -71,6 +71,13 @@ namespace ms_nezhaV2 {
      */
     export let robotTankModeMovementChange = false;
     let i2cAddr: number = 0x10;
+    let currentMotorSpeeds: number[] = [];
+    let currentMotorSpeedsLastRead: number[] = [0, 0, 0, 0, 0];
+    let currentAggregatedAngle: number[] = [];
+    let currentAggregatedAngleLastRead: number[] = [0, 0, 0, 0, 0];
+    let readMotorValueIntervalMs = 100;
+    let motorReadInProgress = false;
+    let servoPositionOffset = 0;
 
     // Restrict Motor speed if required
     // Sometimes 100% is too much for younger learners
@@ -177,13 +184,7 @@ namespace ms_nezhaV2 {
     export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean): void {
         speed = restrictSpeed(speed);
         setServoSpeed(motor, Math.abs(speed));
-
-        let direction: MotorRotationDirection = MotorRotationDirection.CW;
-
-        if (speed < 0)
-        {
-            direction = MotorRotationDirection.CCW;
-        }
+        let direction: MotorRotationDirection = speed < 0 ? MotorRotationDirection.CCW : MotorRotationDirection.CW;
 
         let buf = pins.createBuffer(8);
         buf[0] = 0xFF;
@@ -200,12 +201,6 @@ namespace ms_nezhaV2 {
             waitForMotorMovementComplete(motor, getMotorDelay(speed, value, mode) + 100);
         }
     }
-
-    let currentMotorSpeeds: number[] = [];
-    let currentMotorSpeedsLastRead: number[] = [0,0,0,0,0];
-    let currentAggregatedAngle: number[] = [];
-    let currentAggregatedAngleLastRead: number[] = [0, 0, 0, 0, 0];
-    let readMotorValueIntervalMs = 10;
 
     /**
      * Reads the current speed of the selected motor in revolutions per minute (rpm).
@@ -299,6 +294,22 @@ namespace ms_nezhaV2 {
         while (readServoAbsoluteSpeedInternal(motor) > 0 && (input.runningTime() - startTime) < maxTime) {
             basic.pause(100);
         }
+    }
+
+    /**
+ * Moves the selected motor to the selected angle (in a range of 0 to 359) at the selected speed.
+ * Required rotation can be selected to move clockwise, counterclockwise or fastest route.
+ * The 0 angle position of the motor is the position the motor is in when the Nezha V2 Block is switched on or when the motor is connected.
+ */
+    //% weight=78
+    //% subcategory="Motor / Servo"
+    //% group="Servo Functions"
+    //% block="Set current position to position 0 for motor %motor"
+    //% color=#5285bf
+    //% inlineInputMode=inline
+    //% help=github:pxt-mintspark-nezhav2/README 
+    export function setEncoderPositionOffset(motor: MotorConnector): void {
+        servoPositionOffset += readServoAbsolutePostionAggregateInternal(motor);
     }
 
     /**
@@ -405,7 +416,6 @@ namespace ms_nezhaV2 {
         return currentAggregatedAngle[motor];
     }
 
-    let motorReadInProgress = false;
     function readServoAbsolutePostionAggregateInternal(motor: MotorConnector): number {
         if (motorReadInProgress) return currentAggregatedAngle[motor];
 
@@ -424,7 +434,7 @@ namespace ms_nezhaV2 {
         let arr = pins.i2cReadBuffer(i2cAddr, 4);
         motorReadInProgress = false;
         let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
-        currentAggregatedAngle[motor] = Math.round(position * 0.1);
+        currentAggregatedAngle[motor] = Math.round(position * 0.1) - servoPositionOffset;
         currentAggregatedAngleLastRead[motor] = input.runningTime();
         return currentAggregatedAngle[motor];
     }
