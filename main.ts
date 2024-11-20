@@ -293,10 +293,18 @@ namespace ms_nezhaV2 {
     //% color=#5285bf
     //% speed.min=1 speed.max=100 speed.defl=20
     //% targetAngle.min=0  targetAngle.max=359
+    //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README
     export function goToAbsolutePositionFromCode(motor: MotorConnector, speed: number, targetAngle: number, turnMode: ServoMovementMode): void {
-        let currentAggreggatesAngle = readServoAbsolutePostion(motor);
-        let requiredChange = targetAngle - currentAggreggatesAngle;
+        // Prevent interference with previous movement (can cause absolute position to return 0)
+        stopMotor(motor);
+        waitForMotorMovementComplete(motor, 10000);
+        basic.pause(50);
+
+        let currentPosition = readServoAbsolutePostion(motor);
+        let requiredChange = targetAngle - currentPosition;
+        if (Math.abs(requiredChange) <= 2) return;
+
         let clockwise = requiredChange < 0 ? requiredChange + 360 : requiredChange;
         let counterclockwise = requiredChange > 0 ? requiredChange - 360 : requiredChange;
         let degreesToMove = 0;
@@ -309,8 +317,9 @@ namespace ms_nezhaV2 {
             case ServoMovementMode.CCW:
                 degreesToMove = counterclockwise;
                 break;
-            default:
+            case ServoMovementMode.ShortPath:
                 degreesToMove = Math.min(clockwise, counterclockwise);
+                break;
         }
 
         runMotorFor(motor, speed, degreesToMove, MotorMovementMode.Degrees, true);
