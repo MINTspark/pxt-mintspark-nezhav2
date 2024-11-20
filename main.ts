@@ -282,18 +282,44 @@ namespace ms_nezhaV2 {
     }
 
     /**
-     * Moves the selected motor to the selected angle (in a range of 0 to 359).
+     * Moves the selected motor to the selected angle (in a range of 0 to 359) at the selected speed.
      * Required rotation can be selected to move clockwise, counterclockwise or fastest route.
      * The 0 angle position of the motor is the position the motor is in when the Nezha V2 Block is switched on or when the motor is connected.
      */
     //% weight=80
     //% subcategory="Motor / Servo"
     //% group="Servo Functions"
-    //% block="Turn motor %motor to absolute angle %angle° move %turnmode"
+    //% block="Turn motor %motor with speed %speed to absolute angle %angle° move %turnmode"
     //% color=#5285bf
+    //% speed.min=1 speed.max=100 speed.defl=20
     //% targetAngle.min=0  targetAngle.max=359
     //% help=github:pxt-mintspark-nezhav2/README
-    export function goToAbsolutePosition(motor: MotorConnector, targetAngle: number, turnMode: ServoMovementMode): void {
+    export function goToAbsolutePositionFromCode(motor: MotorConnector, speed: number, targetAngle: number, turnMode: ServoMovementMode): void {
+        let currentAggreggatesAngle = readServoAbsolutePostion(motor);
+        let requiredChange = targetAngle - currentAggreggatesAngle;
+        let clockwise = requiredChange < 0 ? requiredChange + 360 : requiredChange;
+        let counterclockwise = requiredChange > 0 ? requiredChange - 360 : requiredChange;
+        let degreesToMove = 0;
+
+        switch(turnMode)
+        {
+            case ServoMovementMode.CW:
+                degreesToMove = clockwise;
+                break;
+            case ServoMovementMode.CCW:
+                degreesToMove = counterclockwise;
+                break;
+            default:
+                degreesToMove = Math.min(clockwise, counterclockwise);
+        }
+
+        runMotorFor(motor, speed, degreesToMove, MotorMovementMode.Degrees, true);
+    }
+
+    /**
+     * Original hardware controller implementation. Can suffer from lock up if more than one command is executed.
+     */
+    function goToAbsolutePosition(motor: MotorConnector, targetAngle: number, turnMode: ServoMovementMode): void {
 
         while (targetAngle < 0) {
             targetAngle += 360
