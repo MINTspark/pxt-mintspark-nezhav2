@@ -297,10 +297,8 @@ namespace ms_nezhaV2 {
     }
 
     /**
- * Moves the selected motor to the selected angle (in a range of 0 to 359) at the selected speed.
- * Required rotation can be selected to move clockwise, counterclockwise or fastest route.
- * The 0 angle position of the motor is the position the motor is in when the Nezha V2 Block is switched on or when the motor is connected.
- */
+     * Sets the selected motor's current angle position as the 0 position for any further movements.
+     */
     //% weight=78
     //% subcategory="Motor / Servo"
     //% group="Servo Functions"
@@ -309,7 +307,7 @@ namespace ms_nezhaV2 {
     //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README 
     export function setEncoderPositionOffset(motor: MotorConnector): void {
-        servoPositionOffset += readServoAbsolutePostionAggregateInternal(motor);
+        servoPositionOffset += readServoAbsolutePositionAggregateInternal(motor);
     }
 
     /**
@@ -328,7 +326,7 @@ namespace ms_nezhaV2 {
     //% help=github:pxt-mintspark-nezhav2/README 
     export function goToAbsolutePositionFromCode(motor: MotorConnector, speed: number, targetAngle: number, turnMode: ServoMovementMode): void {
         // Calculate required movement in degrees
-        let currentPosition = readServoAbsolutePostionInternal(motor);
+        let currentPosition = readServoAbsolutePositionInternal(motor);
         let requiredChange = targetAngle - currentPosition;
         if (Math.abs(requiredChange) <= 2) return;
 
@@ -377,7 +375,7 @@ namespace ms_nezhaV2 {
 
     /**
      * Reads the angle the motor is currently at (range 0 to 359).
-     * The 0 angle position of the motor is the position the motor is in when the Nezha V2 Block is switched on or when the motor is connected.
+     * The 0 angle position of the motor is the position the motor is in when the Nezha V2 Block is switched on or when the motor is connected. The 0 position can be reset by using the appropriate block.
      */
     //% weight=50
     //% subcategory="Motor / Servo"
@@ -385,13 +383,13 @@ namespace ms_nezhaV2 {
     //%block="%motor angular position (0 to 359)"
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
-    export function readServoAbsolutePostion(motor: MotorConnector): number {
-        let aggreggatePosition = readServoAbsolutePostionAggregate(motor);
+    export function readServoAbsolutePosition(motor: MotorConnector): number {
+        let aggreggatePosition = readServoAbsolutePositionAggregate(motor);
         return Math.round((aggreggatePosition % 360 + 360) % 360);
     }
 
-    function readServoAbsolutePostionInternal(motor: MotorConnector): number {
-        let aggreggatePosition = readServoAbsolutePostionAggregateInternal(motor);
+    function readServoAbsolutePositionInternal(motor: MotorConnector): number {
+        let aggreggatePosition = readServoAbsolutePositionAggregateInternal(motor);
         return Math.round((aggreggatePosition % 360 + 360) % 360);
     }
 
@@ -407,16 +405,16 @@ namespace ms_nezhaV2 {
     //%block="%motor aggregated angular position"
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
-    export function readServoAbsolutePostionAggregate(motor: MotorConnector): number {
+    export function readServoAbsolutePositionAggregate(motor: MotorConnector): number {
         // Only update if last update is stale
         if (currentAggregatedAngleLastRead[motor] + readMotorValueIntervalMs < input.runningTime()) {
-            return readServoAbsolutePostionAggregateInternal(motor);
+            return readServoAbsolutePositionAggregateInternal(motor);
         }
 
         return currentAggregatedAngle[motor];
     }
 
-    function readServoAbsolutePostionAggregateInternal(motor: MotorConnector): number {
+    function readServoAbsolutePositionAggregateInternal(motor: MotorConnector): number {
         if (motorReadInProgress) return currentAggregatedAngle[motor];
 
         motorReadInProgress = true;
