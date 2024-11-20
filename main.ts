@@ -131,7 +131,7 @@ namespace ms_nezhaV2 {
      * Runs the selected motor at a certain speed.
      */
     //% weight=110
-    //% block="Run motor %motor at speed %speed\\%"
+    //% block="Run motor %motor at speed %speed"
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
     //% speed.min=-100 speed.max=100 speed.defl=20
@@ -170,6 +170,7 @@ namespace ms_nezhaV2 {
     //% group="Motor Functions"
     //% speed.min=-100 speed.max=100 speed.defl=20
     //% wait.defl=true
+    //% value.defl=1
     //% wait.shadow="toggleYesNo"
     //% inlineInputMode=inline
     //% color=#0f8c1c
