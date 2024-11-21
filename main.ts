@@ -541,7 +541,7 @@ namespace ms_nezhaV2 {
     //% block="NezhaV2 Block Firmware Version"
     //% subcategory="Motor / Servo"
     //% group="Advanced"
-    //% color=#E63022
+    //% color=#a92aad
     //% help=github:pxt-mintspark-nezhav2/README
     export function readVersion(): string {
         let buf = pins.createBuffer(8);
