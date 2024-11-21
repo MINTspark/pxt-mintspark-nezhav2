@@ -542,8 +542,8 @@ namespace ms_nezhaV2 {
         let tmLSpeed = tankMotorLeftReversed ? -speed : speed;
         let tmRSpeed = tankMotorRightReversed ? -speed : speed;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, value, mode);
-        runMotorFor(tankMotorRight, tmRSpeed, value, mode);
+        runMotorFor(tankMotorLeft, tmLSpeed, value, mode, false);
+        runMotorFor(tankMotorRight, tmRSpeed, value, mode, true);
     }
 
     /**
@@ -571,8 +571,8 @@ namespace ms_nezhaV2 {
         let distMm = (unit == DistanceUnint.Cm) ? distance * 10 : distance * 10 * 2.54;
         let requiredDegrees = distMm * wheelLinearDegreePerMm;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees);
-        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees);
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
     }
 
     /**
@@ -600,8 +600,8 @@ namespace ms_nezhaV2 {
         let requiredDistanceMm = wheelBaseSpotTurnMmPerDegree * degrees;
         let requiredDegrees = requiredDistanceMm * wheelLinearDegreePerMm;
 
-        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees);
-        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees);
+        runMotorFor(tankMotorLeft, tmLSpeed, requiredDegrees, MotorMovementMode.Degrees, false);
+        runMotorFor(tankMotorRight, tmRSpeed, requiredDegrees, MotorMovementMode.Degrees, true);
     }
 
     /**
