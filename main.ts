@@ -172,17 +172,20 @@ namespace ms_nezhaV2 {
      * By default (when the block is not expanded) the code will wait until the movement is completed.
      */
     //% weight=100
-    //% block="Run motor %motor at speed %speed for %value %mode || wait complete %wait"
+    //% block="Run motor %motor at speed %speed for %value %mode || wait complete %wait hold after %holdOnComplete"
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
     //% speed.min=-100 speed.max=100 speed.defl=20
     //% wait.defl=true
+    //% holdOnComplete.defl=false
     //% value.defl=1
     //% wait.shadow="toggleYesNo"
+    //% holdOnComplete.shadow="toggleYesNo"
     //% inlineInputMode=inline
     //% color=#0f8c1c
     //% help=github:pxt-mintspark-nezhav2/README
-    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean): void {
+    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean, holdOnComplete?: boolean): void {
+        if (value < 1) return;
         speed = restrictSpeed(speed);
         setServoSpeed(motor, Math.abs(speed));
         let direction: MotorRotationDirection = speed < 0 ? MotorRotationDirection.CCW : MotorRotationDirection.CW;
@@ -201,7 +204,34 @@ namespace ms_nezhaV2 {
         if (!(wait == false)) {
             waitForMotorMovementComplete(motor, getMotorDelay(speed, value, mode) + 100);
         }
-       
+
+        if (holdOnComplete == true) {
+            holdMotor(motor);
+        }
+        else{
+            freeMotor(motor);
+        }
+    }
+
+    // A helper function to force the motor to free up after a movement (actions a 0 speed motor movement)
+    function freeMotor(motor: MotorConnector) : void
+    {
+        runMotor(motor, 0);
+    }
+
+    // A helper function to force the motor to hold after a movement (actions a 0 degree movement on the motor)
+    function holdMotor(motor: MotorConnector) : void
+    {
+        let buf = pins.createBuffer(8);
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = motor;
+        buf[3] = MotorRotationDirection.CW;
+        buf[4] = 0x70;
+        buf[5] = (0 >> 8) & 0XFF;
+        buf[6] = MotorMovementMode.Degrees;
+        buf[7] = (0 >> 0) & 0XFF;
+        pins.i2cWriteBuffer(i2cAddr, buf);
     }
 
     /**
