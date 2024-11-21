@@ -77,7 +77,7 @@ namespace ms_nezhaV2 {
     let currentAggregatedAngleLastRead: number[] = [0, 0, 0, 0, 0];
     let motorReadInProgress: boolean[] = [false, false, false, false, false];
     let readMotorValueIntervalMs = 100;
-    let servoPositionOffset = 0;
+    let servoPositionOffset: number[] = [0, 0, 0, 0, 0];
 
     // Restrict Motor speed if required. Sometimes 100% is too much for younger learners. Sometimes a value too low can make the motor stall 
     // Set the min and max values here:
@@ -255,7 +255,7 @@ namespace ms_nezhaV2 {
     //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README 
     export function setEncoderPositionOffset(motor: MotorConnector): void {
-        servoPositionOffset += readServoAbsolutePositionAggregateInternal(motor);
+        servoPositionOffset[motor] += readServoAbsolutePositionAggregateInternal(motor);
     }
 
     /**
@@ -636,7 +636,7 @@ namespace ms_nezhaV2 {
 
         // Get value from array
         let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
-        currentAggregatedAngle[motor] = Math.round(position * 0.1) - servoPositionOffset;
+        currentAggregatedAngle[motor] = Math.round(position * 0.1) - servoPositionOffset[motor];
         currentAggregatedAngleLastRead[motor] = input.runningTime();
 
         return currentAggregatedAngle[motor];
