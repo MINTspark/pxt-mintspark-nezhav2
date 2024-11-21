@@ -119,6 +119,7 @@ namespace ms_nezhaV2 {
         }
 
         speed *= 9;
+        speed = Math.abs(speed);
 
         if (motorFunction == MotorMovementMode.Turns) {
             return value * 360000.0 / speed + 500;
@@ -200,6 +201,7 @@ namespace ms_nezhaV2 {
         if (!(wait == false)) {
             waitForMotorMovementComplete(motor, getMotorDelay(speed, value, mode) + 100);
         }
+       
     }
 
     /**
@@ -288,10 +290,10 @@ namespace ms_nezhaV2 {
     }
 
     // A function to block the thread until a motor movement is completed or the max time has elapsed
-    function waitForMotorMovementComplete(motor: MotorConnector, maxTime: number): void {
-        basic.pause(100);
+    function waitForMotorMovementComplete(motor: MotorConnector, time: number): void {
+        basic.pause(300);
         let startTime = input.runningTime();
-        while (readServoAbsoluteSpeedInternal(motor) > 0 && (input.runningTime() - startTime) < maxTime) {
+        while (Math.abs(readServoAbsoluteSpeedInternal(motor)) > 0 && (input.runningTime() - startTime) < time + 1000) {
             basic.pause(100);
         }
     }
