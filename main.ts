@@ -75,37 +75,14 @@ namespace ms_nezhaV2 {
     let currentMotorSpeedsLastRead: number[] = [0, 0, 0, 0, 0];
     let currentAggregatedAngle: number[] = [];
     let currentAggregatedAngleLastRead: number[] = [0, 0, 0, 0, 0];
+    let motorReadInProgress: boolean[] = [false, false, false, false, false];
     let readMotorValueIntervalMs = 100;
-    let motorReadInProgress = false;
     let servoPositionOffset = 0;
 
-    // Restrict Motor speed if required
-    // Sometimes 100% is too much for younger learners
-    // Sometimes a value too low can make the motor stall 
+    // Restrict Motor speed if required. Sometimes 100% is too much for younger learners. Sometimes a value too low can make the motor stall 
     // Set the min and max values here:
     let maxSpeed = 100;
     let minSpeed = 5;
-
-    // Enforce the min and max speeds set above
-    // The entered speed will be mapped to the available range
-    function restrictSpeed(speed: number):number{
-        if (speed > 100) { speed = 100 };
-        if (speed < -100) { speed = -100 };
-
-        if (speed < 0)
-        { 
-            if (speed > -minSpeed) { return -minSpeed; }
-            return Math.map(speed, -minSpeed, -100, -minSpeed, -maxSpeed);
-        }
-
-        if (speed > 0) 
-        {
-            if (speed < minSpeed) { return minSpeed; }
-            return Math.map(speed, minSpeed, 100, minSpeed, maxSpeed);
-        }
-
-        return 0;
-    }
 
     /*
     * Motor / Servo Functions
@@ -172,7 +149,7 @@ namespace ms_nezhaV2 {
      * By default (when the block is not expanded) the code will wait until the movement is completed.
      */
     //% weight=100
-    //% block="Run motor %motor at speed %speed for %value %mode || wait complete %wait hold after %holdOnComplete"
+    //% block="Run motor %motor at speed %speed for %value %mode || wait complete %wait"
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
     //% speed.min=-100 speed.max=100 speed.defl=20
@@ -180,11 +157,10 @@ namespace ms_nezhaV2 {
     //% holdOnComplete.defl=false
     //% value.defl=1
     //% wait.shadow="toggleYesNo"
-    //% holdOnComplete.shadow="toggleYesNo"
     //% inlineInputMode=inline
     //% color=#0f8c1c
     //% help=github:pxt-mintspark-nezhav2/README
-    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean, holdOnComplete?: boolean): void {
+    export function runMotorFor(motor: MotorConnector, speed: number, value: number, mode: MotorMovementMode, wait?: boolean): void {
         if (value < 1) return;
         speed = restrictSpeed(speed);
         setServoSpeed(motor, Math.abs(speed));
@@ -204,23 +180,32 @@ namespace ms_nezhaV2 {
         if (!(wait == false)) {
             waitForMotorMovementComplete(motor, getMotorDelay(speed, value, mode) + 100);
         }
-
-        if (holdOnComplete == true) {
-            holdMotor(motor);
-        }
-        else{
-            freeMotor(motor);
-        }
     }
 
-    // A helper function to force the motor to free up after a movement (actions a 0 speed motor movement)
-    function freeMotor(motor: MotorConnector) : void
+    /**
+    * A helper function to force the motor to free up after a movement so the motor can be moved.
+    */
+    //% weight=98
+    //% subcategory="Motor / Servo"
+    //% group="Motor Functions"
+    //% block="Free motor %motor"
+    //% color=#0f8c1c
+    //% help=github:pxt-mintspark-nezhav2/README
+    export function freeMotor(motor: MotorConnector) : void
     {
         runMotor(motor, 0);
     }
 
-    // A helper function to force the motor to hold after a movement (actions a 0 degree movement on the motor)
-    function holdMotor(motor: MotorConnector) : void
+    /**
+    * A helper function to force the motor to hold after a movement so it keeps its position.
+    */
+    //% weight=97
+    //% subcategory="Motor / Servo"
+    //% group="Motor Functions"
+    //% block="Hold motor %motor"
+    //% color=#0f8c1c
+    //% help=github:pxt-mintspark-nezhav2/README
+    export function holdMotor(motor: MotorConnector) : void
     {
         let buf = pins.createBuffer(8);
         buf[0] = 0xFF;
@@ -237,10 +222,10 @@ namespace ms_nezhaV2 {
     /**
      * Reads the current speed of the selected motor in revolutions per minute (rpm).
      */
-    //% weight=98
+    //% weight=96
     //% subcategory="Motor / Servo"
     //% group="Motor Functions"
-    //%block="%motor speed (rpm)"
+    //% block="%motor speed (rpm)"
     //% color=#0f8c1c
     //% help=github:pxt-mintspark-nezhav2/README
     export function readServoAbsoluteSpeed(motor: MotorConnector): number {
@@ -250,29 +235,6 @@ namespace ms_nezhaV2 {
             return readServoAbsoluteSpeedInternal(motor);
         }
 
-        return currentMotorSpeeds[motor];
-    }
-
-    function readServoAbsoluteSpeedInternal(motor: MotorConnector): number {
-        if (motorReadInProgress) return currentMotorSpeeds[motor];
-
-        motorReadInProgress = true;
-        let buf = pins.createBuffer(8)
-        buf[0] = 0xFF;
-        buf[1] = 0xF9;
-        buf[2] = motor;
-        buf[3] = 0x00;
-        buf[4] = 0x47;
-        buf[5] = 0x00;
-        buf[6] = 0xF5;
-        buf[7] = 0x00;
-        pins.i2cWriteBuffer(i2cAddr, buf);
-        basic.pause(3);
-        let ServoSpeed1Arr = pins.i2cReadBuffer(i2cAddr, 2);
-        motorReadInProgress = false;
-        let Servo1Speed = (ServoSpeed1Arr[1] << 8) | (ServoSpeed1Arr[0]);
-        currentMotorSpeeds[motor] = Math.floor(Servo1Speed * 0.17);
-        currentMotorSpeedsLastRead[motor] = input.runningTime();
         return currentMotorSpeeds[motor];
     }
 
@@ -303,29 +265,6 @@ namespace ms_nezhaV2 {
         runMotor(MotorConnector.M2, 0);
         runMotor(MotorConnector.M3, 0);
         runMotor(MotorConnector.M4, 0);
-    }
-
-    function setServoSpeed(motor: MotorConnector, speed: number): void {
-        speed *= 9
-        let buf = pins.createBuffer(8)
-        buf[0] = 0xFF;
-        buf[1] = 0xF9;
-        buf[2] = motor;
-        buf[3] = 0x00;
-        buf[4] = 0x77;
-        buf[5] = (speed >> 8) & 0XFF;
-        buf[6] = 0x00;
-        buf[7] = (speed >> 0) & 0XFF;
-        pins.i2cWriteBuffer(i2cAddr, buf);
-    }
-
-    // A function to block the thread until a motor movement is completed or the max time has elapsed
-    function waitForMotorMovementComplete(motor: MotorConnector, time: number): void {
-        basic.pause(300);
-        let startTime = input.runningTime();
-        while (Math.abs(readServoAbsoluteSpeedInternal(motor)) > 0 && (input.runningTime() - startTime) < time + 1000) {
-            basic.pause(100);
-        }
     }
 
     /**
@@ -381,31 +320,6 @@ namespace ms_nezhaV2 {
     }
 
     /**
-     * Original hardware controller implementation. Can suffer from lock up if more than one command is executed.
-     */
-    function goToAbsolutePosition(motor: MotorConnector, targetAngle: number, turnMode: ServoMovementMode): void {
-
-        while (targetAngle < 0) {
-            targetAngle += 360
-        }
-        targetAngle %= 360
-
-        let buf = pins.createBuffer(8)
-        buf[0] = 0xFF;
-        buf[1] = 0xF9;
-        buf[2] = motor;
-        buf[3] = 0x00;
-        buf[4] = 0x5D;
-        buf[5] = (targetAngle >> 8) & 0XFF;
-        buf[6] = turnMode;
-        buf[7] = (targetAngle >> 0) & 0XFF;
-        pins.i2cWriteBuffer(i2cAddr, buf);
-        
-        let maxTime = getMotorDelay(100, 1, MotorMovementMode.Turns);
-        waitForMotorMovementComplete(motor, maxTime);
-    }
-
-    /**
      * Reads the angle the motor is currently at (range 0 to 359).
      * The 0 angle position of the motor is the position the motor is in when the Nezha V2 Block is switched on or when the motor is connected. The 0 position can be reset by using the appropriate block.
      */
@@ -443,29 +357,6 @@ namespace ms_nezhaV2 {
             return readServoAbsolutePositionAggregateInternal(motor);
         }
 
-        return currentAggregatedAngle[motor];
-    }
-
-    function readServoAbsolutePositionAggregateInternal(motor: MotorConnector): number {
-        if (motorReadInProgress) return currentAggregatedAngle[motor];
-
-        motorReadInProgress = true;
-        let buf = pins.createBuffer(8);
-        buf[0] = 0xFF;
-        buf[1] = 0xF9;
-        buf[2] = motor;
-        buf[3] = 0x00;
-        buf[4] = 0x46;
-        buf[5] = 0x00;
-        buf[6] = 0xF5;
-        buf[7] = 0x00;
-        pins.i2cWriteBuffer(i2cAddr, buf);
-        basic.pause(4);
-        let arr = pins.i2cReadBuffer(i2cAddr, 4);
-        motorReadInProgress = false;
-        let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
-        currentAggregatedAngle[motor] = Math.round(position * 0.1) - servoPositionOffset;
-        currentAggregatedAngleLastRead[motor] = input.runningTime();
         return currentAggregatedAngle[motor];
     }
 
@@ -694,5 +585,107 @@ namespace ms_nezhaV2 {
         pins.i2cWriteBuffer(i2cAddr, buf);
         let version = pins.i2cReadBuffer(i2cAddr, 3);
         return `V ${version[0]}.${version[1]}.${version[2]}`;
+    }
+
+    // Utility functions
+
+    // Enforce the min and max speeds set above. The entered speed will be mapped to the available range
+    function restrictSpeed(speed: number): number {
+        if (speed > 100) { speed = 100 };
+        if (speed < -100) { speed = -100 };
+
+        if (speed < 0) {
+            if (speed > -minSpeed) { return -minSpeed; }
+            return Math.map(speed, -minSpeed, -100, -minSpeed, -maxSpeed);
+        }
+
+        if (speed > 0) {
+            if (speed < minSpeed) { return minSpeed; }
+            return Math.map(speed, minSpeed, 100, minSpeed, maxSpeed);
+        }
+
+        return 0;
+    }
+
+    // Read the current motor speed of the selected motor
+    function readServoAbsoluteSpeedInternal(motor: MotorConnector): number {
+        // Prevent simultaneous reads from same motor
+        if (motorReadInProgress[motor]) return currentMotorSpeeds[motor];
+
+        // Request value
+        motorReadInProgress[motor] = true;
+        let buf = pins.createBuffer(8)
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = motor;
+        buf[3] = 0x00;
+        buf[4] = 0x47;
+        buf[5] = 0x00;
+        buf[6] = 0xF5;
+        buf[7] = 0x00;
+        pins.i2cWriteBuffer(i2cAddr, buf);
+        basic.pause(3);
+        let ServoSpeed1Arr = pins.i2cReadBuffer(i2cAddr, 2);
+        motorReadInProgress[motor] = false;
+
+        // Get value from array
+        let Servo1Speed = (ServoSpeed1Arr[1] << 8) | (ServoSpeed1Arr[0]);
+        currentMotorSpeeds[motor] = Math.floor(Servo1Speed * 0.17);
+        currentMotorSpeedsLastRead[motor] = input.runningTime();
+        
+        return currentMotorSpeeds[motor];
+    }
+
+    // Reads the aggregated number of degrees the motor has moved since start.
+    function readServoAbsolutePositionAggregateInternal(motor: MotorConnector): number {
+        // Prevent simultaneous reads from same motor
+        if (motorReadInProgress[motor]) return currentAggregatedAngle[motor];
+
+        // Request value
+        motorReadInProgress[motor] = true;
+        let buf = pins.createBuffer(8);
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = motor;
+        buf[3] = 0x00;
+        buf[4] = 0x46;
+        buf[5] = 0x00;
+        buf[6] = 0xF5;
+        buf[7] = 0x00;
+        pins.i2cWriteBuffer(i2cAddr, buf);
+        basic.pause(4);
+        let arr = pins.i2cReadBuffer(i2cAddr, 4);
+        motorReadInProgress[motor] = false;
+
+        // Get value from array
+        let position = (arr[3] << 24) | (arr[2] << 16) | (arr[1] << 8) | (arr[0]);
+        currentAggregatedAngle[motor] = Math.round(position * 0.1) - servoPositionOffset;
+        currentAggregatedAngleLastRead[motor] = input.runningTime();
+
+        return currentAggregatedAngle[motor];
+    }
+
+    // Set the speed to be used for the next motor move
+    function setServoSpeed(motor: MotorConnector, speed: number): void {
+        speed *= 9
+        let buf = pins.createBuffer(8)
+        buf[0] = 0xFF;
+        buf[1] = 0xF9;
+        buf[2] = motor;
+        buf[3] = 0x00;
+        buf[4] = 0x77;
+        buf[5] = (speed >> 8) & 0XFF;
+        buf[6] = 0x00;
+        buf[7] = (speed >> 0) & 0XFF;
+        pins.i2cWriteBuffer(i2cAddr, buf);
+    }
+
+    // A function to block the thread until a motor movement is completed or the max time has elapsed
+    function waitForMotorMovementComplete(motor: MotorConnector, time: number): void {
+        basic.pause(300);
+        let startTime = input.runningTime();
+        while (Math.abs(readServoAbsoluteSpeedInternal(motor)) > 0 && (input.runningTime() - startTime) < time + 1000) {
+            basic.pause(100);
+        }
     }
 }
