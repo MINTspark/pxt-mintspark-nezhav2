@@ -88,29 +88,6 @@ namespace ms_nezhaV2 {
     * Motor / Servo Functions
     */
 
-    // Calculate how much time is needed to complete a motor function and return it in ms
-    // This can be used to block the thread for the required amount of time to let the motor function complete
-    function getMotorDelay(speed: number, value: number, motorFunction: MotorMovementMode): number {
-        if (value == 0 || speed == 0) {
-            return 0;
-        }
-
-        speed *= 9;
-        speed = Math.abs(speed);
-
-        if (motorFunction == MotorMovementMode.Turns) {
-            return value * 360000.0 / speed + 500;
-        }
-        else if (motorFunction == MotorMovementMode.Seconds) {
-            return (value * 1000);
-        }
-        else if (motorFunction == MotorMovementMode.Degrees) {
-            return value * 1000.0 / speed + 500;
-        }
-
-        return 0;
-    }
-
     /**
      * Runs the selected motor at a certain speed.
      */
@@ -185,9 +162,9 @@ namespace ms_nezhaV2 {
     /**
     * A helper function to force the motor to free up after a movement so the motor can be moved.
     */
-    //% weight=98
+    //% weight=88
     //% subcategory="Motor / Servo"
-    //% group="Motor Functions"
+    //% group="Advanced"
     //% block="Free motor %motor"
     //% color=#0f8c1c
     //% help=github:pxt-mintspark-nezhav2/README
@@ -199,9 +176,9 @@ namespace ms_nezhaV2 {
     /**
     * A helper function to force the motor to hold after a movement so it keeps its position.
     */
-    //% weight=97
+    //% weight=87
     //% subcategory="Motor / Servo"
-    //% group="Motor Functions"
+    //% group="Advanced"
     //% block="Hold motor %motor"
     //% color=#0f8c1c
     //% help=github:pxt-mintspark-nezhav2/README
@@ -222,9 +199,9 @@ namespace ms_nezhaV2 {
     /**
      * Reads the current speed of the selected motor in revolutions per minute (rpm).
      */
-    //% weight=96
+    //% weight=86
     //% subcategory="Motor / Servo"
-    //% group="Motor Functions"
+    //% group="Advanced"
     //% block="%motor speed (rpm)"
     //% color=#0f8c1c
     //% help=github:pxt-mintspark-nezhav2/README
@@ -272,7 +249,7 @@ namespace ms_nezhaV2 {
      */
     //% weight=78
     //% subcategory="Motor / Servo"
-    //% group="Servo Functions"
+    //% group="Advanced"
     //% block="Set current position to position 0 for motor %motor"
     //% color=#5285bf
     //% inlineInputMode=inline
@@ -325,17 +302,12 @@ namespace ms_nezhaV2 {
      */
     //% weight=50
     //% subcategory="Motor / Servo"
-    //% group="Servo Functions"
+    //% group="Advanced"
     //%block="%motor angular position (0 to 359)"
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
     export function readServoAbsolutePosition(motor: MotorConnector): number {
         let aggreggatePosition = readServoAbsolutePositionAggregate(motor);
-        return Math.round((aggreggatePosition % 360 + 360) % 360);
-    }
-
-    function readServoAbsolutePositionInternal(motor: MotorConnector): number {
-        let aggreggatePosition = readServoAbsolutePositionAggregateInternal(motor);
         return Math.round((aggreggatePosition % 360 + 360) % 360);
     }
 
@@ -347,7 +319,7 @@ namespace ms_nezhaV2 {
     */
     //% weight=45
     //% subcategory="Motor / Servo"
-    //% group="Servo Functions"
+    //% group="Advanced"
     //%block="%motor aggregated angular position"
     //% color=#5285bf
     //% help=github:pxt-mintspark-nezhav2/README
@@ -565,12 +537,11 @@ namespace ms_nezhaV2 {
     /**
      * Reads the current firmware version of the connected Nezha V2 block. Ensure that the Nezha block is fully initialised before using this block.
      */
-    //% weight=100
+    //% weight=10
     //% block="NezhaV2 Block Firmware Version"
     //% subcategory="Motor / Servo"
-    //% group="Information"
+    //% group="Advanced"
     //% color=#E63022
-    //% weight=320
     //% help=github:pxt-mintspark-nezhav2/README
     export function readVersion(): string {
         let buf = pins.createBuffer(8);
@@ -605,6 +576,12 @@ namespace ms_nezhaV2 {
         }
 
         return 0;
+    }
+
+    // Returns the calculated motor position 0 to 359 based on aggregated position
+    function readServoAbsolutePositionInternal(motor: MotorConnector): number {
+        let aggreggatePosition = readServoAbsolutePositionAggregateInternal(motor);
+        return Math.round((aggreggatePosition % 360 + 360) % 360);
     }
 
     // Read the current motor speed of the selected motor
@@ -687,5 +664,28 @@ namespace ms_nezhaV2 {
         while (Math.abs(readServoAbsoluteSpeedInternal(motor)) > 0 && (input.runningTime() - startTime) < time + 1000) {
             basic.pause(100);
         }
+    }
+
+    // Calculate how much time is needed to complete a motor function and return it in ms
+    // This can be used to block the thread for the required amount of time to let the motor function complete
+    function getMotorDelay(speed: number, value: number, motorFunction: MotorMovementMode): number {
+        if (value == 0 || speed == 0) {
+            return 0;
+        }
+
+        speed *= 9;
+        speed = Math.abs(speed);
+
+        if (motorFunction == MotorMovementMode.Turns) {
+            return value * 360000.0 / speed + 500;
+        }
+        else if (motorFunction == MotorMovementMode.Seconds) {
+            return (value * 1000);
+        }
+        else if (motorFunction == MotorMovementMode.Degrees) {
+            return value * 1000.0 / speed + 500;
+        }
+
+        return 0;
     }
 }
