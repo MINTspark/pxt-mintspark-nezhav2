@@ -500,6 +500,40 @@ namespace ms_nezhaV2 {
     }
 
     /**
+     * Drives the robot forward and right
+     */
+    //% weight=63
+    //% block="Forward and right speed %speed"
+    //% subcategory="Robot Tank Drive"
+    //% group="Movement"
+    //% color=#5285bf
+    //% speed.min=1 speed.max=100 speed.defl=30
+    //% inlineInputMode=inline
+    //% help=github:pxt-mintspark-nezhav2/README
+    export function driveTankForwardRight(speed: number): void {
+        robotTankModeMovementChange = true;
+        speed = Math.abs(speed);
+        driveTankDualSpeedForSeconds(speed + 10, speed - 10);
+    }
+
+    /**
+     * Drives the robot forward and left
+     */
+    //% weight=62
+    //% block="Forward and left speed %speed"
+    //% subcategory="Robot Tank Drive"
+    //% group="Movement"
+    //% color=#5285bf
+    //% speed.min=1 speed.max=100 speed.defl=30
+    //% inlineInputMode=inline
+    //% help=github:pxt-mintspark-nezhav2/README
+    export function driveTankForwardLeft(speed: number): void {
+        robotTankModeMovementChange = true;
+        speed = Math.abs(speed);
+        driveTankDualSpeedForSeconds(speed - 10, speed + 10);
+    }
+
+    /**
      * Drives the tank drive robot with independent speeds for each motor for the set amount of seconds.
      * By setting different speeds, the robot can carry out turns of different radii.
      */
