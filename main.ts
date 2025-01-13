@@ -500,37 +500,27 @@ namespace ms_nezhaV2 {
     }
 
     /**
-     * Drives the robot forward and right
+     * Turns the robot right or left until stopped
      */
     //% weight=63
-    //% block="Forward and right speed %speed"
+    //% block="Turn %direction speed %speed"
     //% subcategory="Robot Tank Drive"
     //% group="Movement"
     //% color=#5285bf
     //% speed.min=1 speed.max=100 speed.defl=30
     //% inlineInputMode=inline
     //% help=github:pxt-mintspark-nezhav2/README
-    export function driveTankForwardRight(speed: number): void {
-        robotTankModeMovementChange = true;
+    export function turnTank(direction: TurnDirection, speed: number): void {
         speed = Math.abs(speed);
-        driveTankDualSpeedForSeconds(speed + 10, speed - 10);
-    }
-
-    /**
-     * Drives the robot forward and left
-     */
-    //% weight=62
-    //% block="Forward and left speed %speed"
-    //% subcategory="Robot Tank Drive"
-    //% group="Movement"
-    //% color=#5285bf
-    //% speed.min=1 speed.max=100 speed.defl=30
-    //% inlineInputMode=inline
-    //% help=github:pxt-mintspark-nezhav2/README
-    export function driveTankForwardLeft(speed: number): void {
         robotTankModeMovementChange = true;
-        speed = Math.abs(speed);
-        driveTankDualSpeedForSeconds(speed - 10, speed + 10);
+        
+        if (direction == TurnDirection.Left)
+        {
+            driveTankDualSpeedForSeconds(0, speed);
+        }
+        else{
+            driveTankDualSpeedForSeconds(speed, 0);
+        }
     }
 
     /**
